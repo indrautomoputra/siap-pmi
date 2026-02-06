@@ -89,7 +89,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
         message,
       });
       if (process.env.SENTRY_DSN) {
-        if (status >= 500) {
+        if (status >= 400) {
           Sentry.captureException(exception);
         }
       }
@@ -101,6 +101,9 @@ export class DomainExceptionFilter implements ExceptionFilter {
         .status(HttpStatus.TOO_MANY_REQUESTS)
         .setHeader('Retry-After', exception.retryAfterSeconds.toString())
         .json(this.buildResponse(exception, HttpStatus.TOO_MANY_REQUESTS));
+      if (process.env.SENTRY_DSN) {
+        Sentry.captureException(exception);
+      }
       return;
     }
 
@@ -108,12 +111,18 @@ export class DomainExceptionFilter implements ExceptionFilter {
       response
         .status(HttpStatus.UNAUTHORIZED)
         .json(this.buildResponse(exception, HttpStatus.UNAUTHORIZED));
+      if (process.env.SENTRY_DSN) {
+        Sentry.captureException(exception);
+      }
       return;
     }
 
     const mapped = this.mapDomainException(exception);
     if (mapped) {
       response.status(mapped.status).json(mapped.body);
+      if (process.env.SENTRY_DSN) {
+        Sentry.captureException(exception);
+      }
       return;
     }
 
