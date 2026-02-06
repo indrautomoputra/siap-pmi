@@ -1,0 +1,161 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+permissions:
+  contents: read
+
+jobs:
+  backend_checks:
+    name: Backend Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: siap-pmi-api
+        run: npm ci
+      - name: Lint
+        working-directory: siap-pmi-api
+        run: npm run lint
+      - name: Build
+        working-directory: siap-pmi-api
+        run: npm run build
+
+  backend_fly_deploy:
+    name: Backend (Fly.io)
+    runs-on: ubuntu-latest
+    needs: backend_checks
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    if: ${{ secrets.FLY_API_TOKEN != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+      - name: Deploy to Fly (staging)
+        working-directory: siap-pmi-api
+        run: |
+          flyctl auth token "$FLY_API_TOKEN"
+          flyctl deploy --config fly.staging.toml --remote-only --verbose
+      - name: Health check
+        if: ${{ secrets.STAGING_HEALTH_URL != '' }}
+        run: |
+          curl -fsSL "${{ secrets.STAGING_HEALTH_URL }}/health"
+
+  backend_render_deploy:
+    name: Backend (Render)
+    runs-on: ubuntu-latest
+    needs: backend_checks
+    if: ${{ secrets.STAGING_RENDER_DEPLOY_HOOK_URL != '' }}
+    steps:
+      - name: Trigger Render deploy (staging)
+        run: |
+          curl -fsSL -X POST "${{ secrets.STAGING_RENDER_DEPLOY_HOOK_URL }}"
+
+  backend_digitalocean_deploy:
+    name: Backend (DigitalOcean)
+    runs-on: ubuntu-latest
+    needs: backend_checks
+    if: ${{ secrets.STAGING_DO_DEPLOY_HOOK_URL != '' }}
+    steps:
+      - name: Trigger DigitalOcean deploy (staging)
+        run: |
+          curl -fsSL -X POST "${{ secrets.STAGING_DO_DEPLOY_HOOK_URL }}"
+
+  backend_done:
+    name: Backend Done
+    runs-on: ubuntu-latest
+    needs:
+      - backend_fly_deploy
+      - backend_render_deploy
+      - backend_digitalocean_deploy
+    if: ${{ always() }}
+    steps:
+      - name: Done
+        run: echo "backend done"
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+      - name: Deploy to Fly (staging)
+        working-directory: siap-pmi-api
+        run: |
+          flyctl auth token "$FLY_API_TOKEN"
+          flyctl deploy --config fly.staging.toml --remote-only --verbose
+      - name: Health check
+        if: ${{ secrets.STAGING_HEALTH_URL != '' }}
+        run: |
+          curl -fsSL "${{ secrets.STAGING_HEALTH_URL }}/health"
+
+  frontend_vercel_deploy:
+    name: Frontend (Vercel)
+    runs-on: ubuntu-latest
+    needs: backend_done
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: siap-pmi-admin
+        run: npm ci
+      - name: Lint
+        working-directory: siap-pmi-admin
+        run: npm run lint
+      - name: Build
+        working-directory: siap-pmi-admin
+        run: npm run build
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+      - name: Pull Vercel env (staging)
+        working-directory: siap-pmi-admin
+        run: vercel pull --yes --environment=preview --token $VERCEL_TOKEN
+      - name: Build (Vercel)
+        working-directory: siap-pmi-admin
+        run: vercel build --token $VERCEL_TOKEN
+      - name: Deploy (Vercel)
+        working-directory: siap-pmi-admin
+        run: vercel deploy --prebuilt --token $VERCEL_TOKEN
+
+  frontend_netlify_deploy:
+    name: Frontend (Netlify)
+    runs-on: ubuntu-latest
+    needs: backend_done
+    if: ${{ secrets.NETLIFY_AUTH_TOKEN != '' && secrets.NETLIFY_SITE_ID != '' }}
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: siap-pmi-admin
+        run: npm ci
+      - name: Lint
+        working-directory: siap-pmi-admin
+        run: npm run lint
+      - name: Build
+        working-directory: siap-pmi-admin
+        run: npm run build
+      - name: Install Netlify CLI
+        run: npm i -g netlify-cli@latest
+      - name: Deploy (Netlify)
+        working-directory: siap-pmi-admin
+        run: netlify deploy --dir .next --build --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN"

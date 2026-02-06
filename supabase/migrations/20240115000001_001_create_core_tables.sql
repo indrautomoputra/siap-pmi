@@ -1,0 +1,182 @@
+create extension if not exists pgcrypto;
+
+do $$
+begin
+  create type event_program_type as enum ('ORIENTASI', 'KSR_DASAR', 'NON_KSR');
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  create type event_status as enum ('draft', 'published', 'ongoing', 'completed', 'cancelled');
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  create type enrollment_status as enum ('registered', 'validated', 'active', 'withdrawn');
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  create type enrollment_review_status as enum ('pending_review', 'approved', 'rejected');
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  create type pmi_element as enum ('PENGURUS', 'STAF', 'RELAWAN');
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  create type event_role_type as enum ('PANITIA', 'PELATIH', 'OBSERVER');
+exception
+  when duplicate_object then null;
+end $$;
+
+create table if not exists public.events (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  program_type event_program_type not null,
+  status event_status not null,
+  start_date date not null,
+  end_date date not null
+);
+
+create table if not exists public.enrollments (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null,
+  user_id uuid null,
+  participant_name text not null,
+  display_name text null,
+  pmi_element pmi_element null,
+  status enrollment_status not null,
+  review_status enrollment_review_status not null default 'pending_review',
+  reviewed_by uuid null,
+  reviewed_at timestamptz null,
+  review_note text null,
+  registered_at date not null,
+  created_by uuid null
+);
+
+create table if not exists public.event_role_assignments (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null,
+  user_id uuid null,
+  role event_role_type not null,
+  person_name text not null,
+  display_name text null,
+  assigned_at date not null,
+  created_by uuid null
+);
+
+create table if not exists public.users (
+  id uuid primary key,
+  email text null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.organizations (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  created_at timestamptz not null default now()
+);
+
+do $$
+begin
+  if to_regclass('public.enrollments') is not null then
+    if not exists (
+      select 1 from pg_constraint where conname = 'enrollments_event_id_fkey'
+    ) then
+      alter table public.enrollments
+        add constraint enrollments_event_id_fkey
+        foreign key (event_id) references public.events(id) on delete cascade;
+    end if;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.enrollments') is not null then
+    if not exists (
+      select 1 from pg_constraint where conname = 'enrollments_user_id_fkey'
+    ) then
+      alter table public.enrollments
+        add constraint enrollments_user_id_fkey
+        foreign key (user_id) references auth.users(id) on delete set null;
+    end if;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.enrollments') is not null then
+    if not exists (
+      select 1 from pg_constraint where conname = 'enrollments_event_user_unique'
+    ) then
+      alter table public.enrollments
+        add constraint enrollments_event_user_unique
+        unique (event_id, user_id);
+    end if;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.event_role_assignments') is not null then
+    if not exists (
+      select 1 from pg_constraint where conname = 'event_role_assignments_event_id_fkey'
+    ) then
+      alter table public.event_role_assignments
+        add constraint event_role_assignments_event_id_fkey
+        foreign key (event_id) references public.events(id) on delete cascade;
+    end if;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.event_role_assignments') is not null then
+    if not exists (
+      select 1 from pg_constraint where conname = 'event_role_assignments_user_id_fkey'
+    ) then
+      alter table public.event_role_assignments
+        add constraint event_role_assignments_user_id_fkey
+        foreign key (user_id) references auth.users(id) on delete set null;
+    end if;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.event_role_assignments') is not null then
+    if not exists (
+      select 1 from pg_constraint where conname = 'event_role_assignments_event_user_unique'
+    ) then
+      alter table public.event_role_assignments
+        add constraint event_role_assignments_event_user_unique
+        unique (event_id, user_id);
+    end if;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.users') is not null then
+    if not exists (
+      select 1 from pg_constraint where conname = 'users_auth_user_id_fkey'
+    ) then
+      alter table public.users
+        add constraint users_auth_user_id_fkey
+        foreign key (id) references auth.users(id) on delete cascade;
+    end if;
+  end if;
+end $$;
