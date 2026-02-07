@@ -9,6 +9,7 @@ import {
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 import { AuthGuard } from '../../infrastructure/auth/auth.guard';
+import { EventContextGuard } from '../../core/event-context/event-context.guard';
 import { EventsService } from './events.service';
 import { TrainingEvent } from './events.types';
 
@@ -31,7 +32,7 @@ class EventsQueryDto {
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, EventContextGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   @Get()
   listEvents(

@@ -4,6 +4,7 @@ import { SupabaseModule } from '../../infrastructure/supabase/supabase.module';
 import { EventsModule } from '../events/events.module';
 import { EventRolesModule } from '../event-roles/event-roles.module';
 import { AuditModule } from '../audit/audit.module';
+import { EventContextModule } from '../../core/event-context/event-context.module';
 import { EnrollmentsController } from './enrollments.controller';
 import { EventEnrollmentsController } from './event-enrollments.controller';
 import { EnrollmentPolicy } from './enrollments.policy';
@@ -19,6 +20,7 @@ import { EnrollmentApprovalPolicy } from './enrollment-approval.policy';
     EventRolesModule,
     AuthModule,
     AuditModule,
+    EventContextModule,
   ],
   controllers: [EnrollmentsController, EventEnrollmentsController],
   providers: [

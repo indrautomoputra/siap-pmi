@@ -14,6 +14,7 @@ import { EnrollmentsService } from './enrollments.service';
 import { Enrollment } from './enrollments.types';
 import { EventId } from '../events/events.types';
 import { AuthGuard } from '../../infrastructure/auth/auth.guard';
+import { EventContextGuard } from '../../core/event-context/event-context.guard';
 import { AttachEnrollmentDocumentDto } from './attach-enrollment-document.dto';
 import { EnrollmentDocumentsService } from './enrollment-documents.service';
 import { AuthService } from '../../infrastructure/auth/auth.service';
@@ -35,7 +36,7 @@ export class EnrollmentsController {
     private readonly authService: AuthService,
   ) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, EventContextGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   @Post()
   createEnrollment(
@@ -63,7 +64,7 @@ export class EnrollmentsController {
     void this.enrollmentsService.cancelEnrollment();
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, EventContextGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   @Post(':id/documents')
   async attachDocument(
@@ -80,7 +81,7 @@ export class EnrollmentsController {
     );
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, EventContextGuard)
   @Post(':id/approve')
   async approveEnrollment(
     @Param('id') enrollmentId: string,
@@ -98,7 +99,7 @@ export class EnrollmentsController {
     );
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, EventContextGuard)
   @Post(':id/reject')
   async rejectEnrollment(
     @Param('id') enrollmentId: string,
