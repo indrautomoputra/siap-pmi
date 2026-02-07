@@ -1,4 +1,4 @@
-import type { AssessmentKind } from '../assessment/assessment.types';
+import type { AssessmentKind } from './assessment.types';
 
 export type AssessmentId = string;
 

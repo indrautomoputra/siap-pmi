@@ -11,7 +11,6 @@ import { EventsModule } from './modules/events/events.module';
 import { KapModule } from './modules/kap/kap.module';
 import { UsersModule } from './modules/users/users.module';
 import { AssessmentModule } from './modules/assessment/assessment.module';
-import { AssessmentsModule } from './modules/assessments/assessments.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { GraduationsModule } from './modules/graduations/graduations.module';
 import { ExportsModule } from './modules/exports/exports.module';
@@ -27,7 +26,6 @@ import { ExportsModule } from './modules/exports/exports.module';
     EventRolesModule,
     KapModule,
     AssessmentModule,
-    AssessmentsModule,
     UsersModule,
     DashboardModule,
     GraduationsModule,

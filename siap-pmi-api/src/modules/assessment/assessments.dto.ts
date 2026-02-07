@@ -1,5 +1,5 @@
 import { IsDefined, IsIn, IsObject, IsOptional, IsUUID } from 'class-validator';
-import type { AssessmentKind } from '../assessment/assessment.types';
+import type { AssessmentKind } from './assessment.types';
 
 export class CreateAssessmentRequestDto {
   @IsOptional()

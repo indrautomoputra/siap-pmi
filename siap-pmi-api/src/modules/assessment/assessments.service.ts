@@ -4,7 +4,7 @@ import type { SupabaseClientType } from '../../infrastructure/supabase/supabase.
 import { SupabaseProvider } from '../../infrastructure/supabase/supabase.module';
 import type { CurrentUser } from '../../infrastructure/auth/auth.service';
 import type { CurrentUserContext } from '../../infrastructure/auth/current-user';
-import type { AssessmentKind } from '../assessment/assessment.types';
+import type { AssessmentKind } from './assessment.types';
 import { EnrollmentNotFound } from '../enrollments/enrollments.errors';
 import {
   AssessmentDetailResponseDto,
