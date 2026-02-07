@@ -14,6 +14,7 @@ import { AssessmentModule } from './modules/assessment/assessment.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { GraduationsModule } from './modules/graduations/graduations.module';
 import { ExportsModule } from './modules/exports/exports.module';
+import { EvaluationsModule } from './modules/evaluations/evaluations.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ExportsModule } from './modules/exports/exports.module';
     DashboardModule,
     GraduationsModule,
     ExportsModule,
+    EvaluationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

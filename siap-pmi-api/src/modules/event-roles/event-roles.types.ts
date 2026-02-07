@@ -2,7 +2,7 @@ import { EventId } from '../events/events.types';
 
 export type EventRoleId = string;
 
-export type EventRoleType = 'PANITIA' | 'PELATIH' | 'OBSERVER';
+export type EventRoleType = 'PANITIA' | 'PELATIH' | 'OBSERVER' | 'PESERTA';
 
 export enum EventPermission {
   MANAGE_EVENT = 'MANAGE_EVENT',
@@ -21,6 +21,7 @@ export const EventRolePermissions: Record<EventRoleType, EventPermission[]> = {
   ],
   PELATIH: [EventPermission.INPUT_PENILAIAN, EventPermission.VIEW_REPORT],
   OBSERVER: [EventPermission.VIEW_REPORT],
+  PESERTA: [],
 };
 
 export interface EventRoleAssignment {

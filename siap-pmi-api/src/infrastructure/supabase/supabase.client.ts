@@ -139,6 +139,14 @@ type AssessmentScoresRow = {
   submitted_at: string;
 };
 
+type EvaluationsRow = {
+  id: string;
+  event_id: string;
+  enrollment_id: string;
+  responses: Record<string, unknown>;
+  submitted_at: string;
+};
+
 type KapInstrumentsRow = {
   id: string;
   event_id: string;
@@ -278,6 +286,12 @@ type Database = {
         Row: AssessmentScoresRow;
         Insert: AssessmentScoresRow;
         Update: Partial<AssessmentScoresRow>;
+        Relationships: Relationship[];
+      };
+      evaluations: {
+        Row: EvaluationsRow;
+        Insert: EvaluationsRow;
+        Update: Partial<EvaluationsRow>;
         Relationships: Relationship[];
       };
       kap_instruments: {
