@@ -1,10 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { Request } from 'express';
-import type { CurrentUser } from '../../infrastructure/auth/auth.service';
+import type { CurrentUser as AuthCurrentUser } from '../../infrastructure/auth/auth.service';
 import type { CurrentUserContext } from '../../infrastructure/auth/current-user';
 
 type RequestWithAuthContext = Request & {
-  user?: CurrentUser;
+  user?: AuthCurrentUser;
   currentUser?: CurrentUserContext;
 };
 
