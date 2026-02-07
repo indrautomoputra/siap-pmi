@@ -7,11 +7,11 @@ import type { CurrentUserContext } from '../../infrastructure/auth/current-user'
 import type { AssessmentKind } from './assessment.types';
 import { EnrollmentNotFound } from '../enrollments/enrollments.errors';
 import {
-  AssessmentDetailResponseDto,
-  AssessmentItemDto,
-  AssessmentListResponseDto,
-  CreateAssessmentRequestDto,
-} from './assessments.dto';
+  AssessmentScoreDetailResponseDto,
+  AssessmentScoreItemDto,
+  AssessmentScoreListResponseDto,
+  CreateAssessmentScoreRequestDto,
+} from './assessment-scores.dto';
 
 type CurrentUserLike = CurrentUser | CurrentUserContext;
 
@@ -39,10 +39,10 @@ type EnrollmentRow = {
 };
 
 @Injectable()
-export class AssessmentsService {
+export class AssessmentScoresService {
   constructor(private readonly supabaseProvider: SupabaseProvider) {}
 
-  async listByEvent(eventId: string): Promise<AssessmentListResponseDto> {
+  async listByEvent(eventId: string): Promise<AssessmentScoreListResponseDto> {
     const client = this.supabaseProvider.getClient();
     const instruments = await this.fetchInstrumentsByEvent(client, eventId);
     if (instruments.length === 0) {
@@ -61,14 +61,14 @@ export class AssessmentsService {
         }
         return this.toItemDto(score, eventId, kind);
       })
-      .filter((item): item is AssessmentItemDto => Boolean(item));
+      .filter((item): item is AssessmentScoreItemDto => Boolean(item));
     return { eventId, items };
   }
 
   async getById(
     eventId: string,
     assessmentId: string,
-  ): Promise<AssessmentDetailResponseDto> {
+  ): Promise<AssessmentScoreDetailResponseDto> {
     const client = this.supabaseProvider.getClient();
     const score = await this.fetchScoreById(client, assessmentId);
     if (!score) {
@@ -87,7 +87,7 @@ export class AssessmentsService {
   async create(
     eventId: string,
     currentUser: CurrentUserLike | undefined,
-    dto: CreateAssessmentRequestDto,
+    dto: CreateAssessmentScoreRequestDto,
   ): Promise<{ assessmentId: string }> {
     if (dto.event_id && dto.event_id !== eventId) {
       throw new Error('event_id tidak sesuai dengan event pada path');
@@ -136,7 +136,7 @@ export class AssessmentsService {
     score: AssessmentScoreRow,
     eventId: string,
     kind: AssessmentKind,
-  ): AssessmentItemDto {
+  ): AssessmentScoreItemDto {
     return {
       id: score.id,
       eventId,

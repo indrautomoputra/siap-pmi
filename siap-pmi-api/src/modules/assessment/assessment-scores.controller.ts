@@ -17,26 +17,28 @@ import type { CurrentEventContext } from '../../core/event-context/event-context
 import type { CurrentUser as AuthCurrentUser } from '../../infrastructure/auth/auth.service';
 import type { CurrentUserContext } from '../../infrastructure/auth/current-user';
 import {
-  AssessmentDetailResponseDto,
-  AssessmentListResponseDto,
-  CreateAssessmentRequestDto,
-} from './assessments.dto';
-import { AssessmentsService } from './assessments.service';
+  AssessmentScoreDetailResponseDto,
+  AssessmentScoreListResponseDto,
+  CreateAssessmentScoreRequestDto,
+} from './assessment-scores.dto';
+import { AssessmentScoresService } from './assessment-scores.service';
 
 type CurrentUserLike = AuthCurrentUser | CurrentUserContext;
 
 @Controller('events/:eventId/assessments')
 @UseGuards(AuthGuard, EventContextGuard)
-export class AssessmentsController {
-  constructor(private readonly assessmentsService: AssessmentsService) {}
+export class AssessmentScoresController {
+  constructor(
+    private readonly assessmentScoresService: AssessmentScoresService,
+  ) {}
 
   @EventRole('PANITIA', 'PELATIH', 'OBSERVER')
   @Get()
   listByEvent(
     @CurrentEvent() currentEvent?: CurrentEventContext,
-  ): Promise<AssessmentListResponseDto> {
+  ): Promise<AssessmentScoreListResponseDto> {
     const eventId = this.getEventId(currentEvent);
-    return this.assessmentsService.listByEvent(eventId);
+    return this.assessmentScoresService.listByEvent(eventId);
   }
 
   @EventRole('PELATIH', 'OBSERVER')
@@ -45,10 +47,10 @@ export class AssessmentsController {
   createAssessment(
     @CurrentEvent() currentEvent: CurrentEventContext | undefined,
     @CurrentUser() currentUser: CurrentUserLike | undefined,
-    @Body() dto: CreateAssessmentRequestDto,
+    @Body() dto: CreateAssessmentScoreRequestDto,
   ): Promise<{ assessmentId: string }> {
     const eventId = this.getEventId(currentEvent);
-    return this.assessmentsService.create(eventId, currentUser, dto);
+    return this.assessmentScoresService.create(eventId, currentUser, dto);
   }
 
   @EventRole('PANITIA', 'PELATIH', 'OBSERVER')
@@ -56,9 +58,9 @@ export class AssessmentsController {
   getAssessment(
     @CurrentEvent() currentEvent: CurrentEventContext | undefined,
     @Param('assessmentId') assessmentId: string,
-  ): Promise<AssessmentDetailResponseDto> {
+  ): Promise<AssessmentScoreDetailResponseDto> {
     const eventId = this.getEventId(currentEvent);
-    return this.assessmentsService.getById(eventId, assessmentId);
+    return this.assessmentScoresService.getById(eventId, assessmentId);
   }
 
   private getEventId(currentEvent?: CurrentEventContext): string {

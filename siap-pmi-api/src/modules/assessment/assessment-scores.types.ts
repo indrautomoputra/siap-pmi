@@ -1,16 +1,16 @@
 import type { AssessmentKind } from './assessment.types';
 
-export type AssessmentId = string;
+export type AssessmentScoreId = string;
 
-export type AssessmentPayload = Record<string, unknown>;
+export type AssessmentScorePayload = Record<string, unknown>;
 
-export interface AssessmentRecord {
-  id: AssessmentId;
+export interface AssessmentScoreRecord {
+  id: AssessmentScoreId;
   eventId: string;
   instrumentId: string;
   assesseeEnrollmentId: string;
   assessorUserId: string;
   type: AssessmentKind;
-  payload: AssessmentPayload;
+  payload: AssessmentScorePayload;
   createdAt: Date;
 }

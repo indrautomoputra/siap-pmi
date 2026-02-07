@@ -1,7 +1,7 @@
 import { IsDefined, IsIn, IsObject, IsOptional, IsUUID } from 'class-validator';
 import type { AssessmentKind } from './assessment.types';
 
-export class CreateAssessmentRequestDto {
+export class CreateAssessmentScoreRequestDto {
   @IsOptional()
   @IsUUID()
   event_id?: string;
@@ -21,7 +21,7 @@ export class CreateAssessmentRequestDto {
   payload: Record<string, unknown>;
 }
 
-export class AssessmentItemDto {
+export class AssessmentScoreItemDto {
   id: string;
   eventId: string;
   instrumentId: string;
@@ -32,9 +32,9 @@ export class AssessmentItemDto {
   createdAt: string;
 }
 
-export class AssessmentListResponseDto {
+export class AssessmentScoreListResponseDto {
   eventId: string;
-  items: AssessmentItemDto[];
+  items: AssessmentScoreItemDto[];
 }
 
-export class AssessmentDetailResponseDto extends AssessmentItemDto {}
+export class AssessmentScoreDetailResponseDto extends AssessmentScoreItemDto {}

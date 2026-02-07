@@ -7,12 +7,12 @@ import { EventsModule } from '../events/events.module';
 import { EnrollmentsRepository } from '../enrollments/enrollments.repository';
 import { AuditModule } from '../audit/audit.module';
 import { AssessmentController } from './assessment.controller';
-import { AssessmentsController } from './assessments.controller';
+import { AssessmentScoresController } from './assessment-scores.controller';
 import { EventAssessmentController } from './event-assessment.controller';
 import { AssessmentPolicy } from './assessment.policy';
 import { AssessmentRepository } from './assessment.repository';
 import { AssessmentService } from './assessment.service';
-import { AssessmentsService } from './assessments.service';
+import { AssessmentScoresService } from './assessment-scores.service';
 
 @Module({
   imports: [
@@ -26,14 +26,14 @@ import { AssessmentsService } from './assessments.service';
   controllers: [
     AssessmentController,
     EventAssessmentController,
-    AssessmentsController,
+    AssessmentScoresController,
   ],
   providers: [
     AssessmentService,
     AssessmentRepository,
     AssessmentPolicy,
     EnrollmentsRepository,
-    AssessmentsService,
+    AssessmentScoresService,
   ],
 })
 export class AssessmentModule {}
