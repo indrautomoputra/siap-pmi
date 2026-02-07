@@ -20,34 +20,44 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        working-directory: siap-pmi-api
+        working-directory: api-sulsel
         run: npm ci
       - name: Lint
-        working-directory: siap-pmi-api
+        working-directory: api-sulsel
         run: npm run lint
       - name: Build
-        working-directory: siap-pmi-api
+        working-directory: api-sulsel
         run: npm run build
 
   backend_render_deploy:
     name: Backend (Render)
     runs-on: ubuntu-latest
     needs: backend_checks
-    if: ${{ secrets.PRODUCTION_RENDER_DEPLOY_HOOK_URL != '' }}
     steps:
       - name: Trigger Render deploy (production)
+        env:
+          RENDER_HOOK_URL: ${{ secrets.PRODUCTION_RENDER_DEPLOY_HOOK_URL }}
         run: |
-          curl -fsSL -X POST "${{ secrets.PRODUCTION_RENDER_DEPLOY_HOOK_URL }}"
+          if [ -z "$RENDER_HOOK_URL" ]; then
+            echo "Skipping Render deploy"
+            exit 0
+          fi
+          curl -fsSL -X POST "$RENDER_HOOK_URL"
 
   backend_digitalocean_deploy:
     name: Backend (DigitalOcean)
     runs-on: ubuntu-latest
     needs: backend_checks
-    if: ${{ secrets.PRODUCTION_DO_DEPLOY_HOOK_URL != '' }}
     steps:
       - name: Trigger DigitalOcean deploy (production)
+        env:
+          DO_HOOK_URL: ${{ secrets.PRODUCTION_DO_DEPLOY_HOOK_URL }}
         run: |
-          curl -fsSL -X POST "${{ secrets.PRODUCTION_DO_DEPLOY_HOOK_URL }}"
+          if [ -z "$DO_HOOK_URL" ]; then
+            echo "Skipping DigitalOcean deploy"
+            exit 0
+          fi
+          curl -fsSL -X POST "$DO_HOOK_URL"
 
   backend_done:
     name: Backend Done
@@ -59,6 +69,24 @@ jobs:
     steps:
       - name: Done
         run: echo "backend done"
+      - name: Backend health check
+        env:
+          HEALTH_URL: ${{ secrets.PRODUCTION_HEALTH_URL }}
+        run: |
+          if [ -z "$HEALTH_URL" ]; then
+            echo "Skipping backend health check"
+            exit 0
+          fi
+          curl -fsSL -H "ngrok-skip-browser-warning: 1" "${HEALTH_URL}/health"
+      - name: Backend load test
+        env:
+          LOADTEST_URL: ${{ secrets.PRODUCTION_LOADTEST_URL }}
+        run: |
+          if [ -z "$LOADTEST_URL" ]; then
+            echo "Skipping backend load test"
+            exit 0
+          fi
+          npx --yes autocannon@latest "$LOADTEST_URL" -c 50 -d 30 -p 10 -H "ngrok-skip-browser-warning: 1"
 
   frontend_vercel_deploy:
     name: Frontend (Vercel)
@@ -76,52 +104,76 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: npm ci
       - name: Lint
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: npm run lint
       - name: Build
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: npm run build
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
       - name: Pull Vercel env (production)
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: vercel pull --yes --environment=production --token $VERCEL_TOKEN
       - name: Build (Vercel)
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: vercel build --token $VERCEL_TOKEN
       - name: Deploy (Vercel)
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: vercel deploy --prebuilt --prod --token $VERCEL_TOKEN
+      - name: Frontend health check
+        env:
+          FRONTEND_URL: ${{ secrets.PRODUCTION_FRONTEND_URL }}
+        run: |
+          if [ -z "$FRONTEND_URL" ]; then
+            echo "Skipping frontend health check"
+            exit 0
+          fi
+          curl -fsSL -H "ngrok-skip-browser-warning: 1" "$FRONTEND_URL"
 
   frontend_netlify_deploy:
     name: Frontend (Netlify)
     runs-on: ubuntu-latest
     needs: backend_done
-    if: ${{ secrets.NETLIFY_AUTH_TOKEN != '' && secrets.NETLIFY_SITE_ID != '' }}
     env:
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
     steps:
+      - name: Check Netlify secrets
+        id: netlify_guard
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ] || [ -z "$NETLIFY_SITE_ID" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping Netlify deploy"
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
       - name: Checkout
+        if: steps.netlify_guard.outputs.enabled == 'true'
         uses: actions/checkout@v4
       - name: Setup Node.js
+        if: steps.netlify_guard.outputs.enabled == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
       - name: Install dependencies
-        working-directory: siap-pmi-admin
+        if: steps.netlify_guard.outputs.enabled == 'true'
+        working-directory: admin-sulsel
         run: npm ci
       - name: Lint
-        working-directory: siap-pmi-admin
+        if: steps.netlify_guard.outputs.enabled == 'true'
+        working-directory: admin-sulsel
         run: npm run lint
       - name: Build
-        working-directory: siap-pmi-admin
+        if: steps.netlify_guard.outputs.enabled == 'true'
+        working-directory: admin-sulsel
         run: npm run build
       - name: Install Netlify CLI
+        if: steps.netlify_guard.outputs.enabled == 'true'
         run: npm i -g netlify-cli@latest
       - name: Deploy (Netlify)
-        working-directory: siap-pmi-admin
+        if: steps.netlify_guard.outputs.enabled == 'true'
+        working-directory: admin-sulsel
         run: netlify deploy --dir .next --build --prod --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN"

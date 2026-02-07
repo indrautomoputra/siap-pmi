@@ -1,7 +1,7 @@
 {
   "builds": [
     {
-      "src": "siap-pmi-admin/package.json",
+      "src": "admin-sulsel/package.json",
       "use": "@vercel/next"
     }
   ]
