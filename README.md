@@ -2,16 +2,16 @@
 
 Repositori ini berisi beberapa komponen utama untuk proyek SIAP PMI:
 
-- siap-pmi-admin: aplikasi admin berbasis Next.js
-- siap-pmi-api: layanan API berbasis NestJS
-- supabase: konfigurasi dan migrasi database
+- admin-sulsel: aplikasi admin berbasis Next.js
+- api-sulsel: layanan API berbasis NestJS
+- supabase-sulsel: konfigurasi dan migrasi database
 
 ## Struktur Direktori
 
-- siap-pmi-admin/ — Frontend admin (Next.js)
-- siap-pmi-api/ — Backend API (NestJS)
-- supabase/ — Migrasi dan konfigurasi Supabase
-- docs/ — Dokumen proyek
+- admin-sulsel/ — Frontend admin (Next.js)
+- api-sulsel/ — Backend API (NestJS)
+- supabase-sulsel/ — Migrasi dan konfigurasi Supabase
+- docs-sulsel/ — Dokumen proyek
 
 ## Prasyarat
 
@@ -22,7 +22,7 @@ Repositori ini berisi beberapa komponen utama untuk proyek SIAP PMI:
 ## Menjalankan Admin
 
 ```bash
-cd siap-pmi-admin
+cd admin-sulsel
 npm install
 npm run dev
 ```
@@ -30,7 +30,7 @@ npm run dev
 ## Menjalankan API
 
 ```bash
-cd siap-pmi-api
+cd api-sulsel
 npm install
 npm run start:dev
 ```

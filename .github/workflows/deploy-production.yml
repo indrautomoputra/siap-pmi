@@ -20,13 +20,13 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        working-directory: siap-pmi-api
+        working-directory: api-sulsel
         run: npm ci
       - name: Lint
-        working-directory: siap-pmi-api
+        working-directory: api-sulsel
         run: npm run lint
       - name: Build
-        working-directory: siap-pmi-api
+        working-directory: api-sulsel
         run: npm run build
 
   backend_render_deploy:
@@ -104,24 +104,24 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: npm ci
       - name: Lint
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: npm run lint
       - name: Build
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: npm run build
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
       - name: Pull Vercel env (production)
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: vercel pull --yes --environment=production --token $VERCEL_TOKEN
       - name: Build (Vercel)
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: vercel build --token $VERCEL_TOKEN
       - name: Deploy (Vercel)
-        working-directory: siap-pmi-admin
+        working-directory: admin-sulsel
         run: vercel deploy --prebuilt --prod --token $VERCEL_TOKEN
       - name: Frontend health check
         env:
@@ -159,21 +159,17 @@ jobs:
         with:
           node-version: 20
       - name: Install dependencies
-        if: steps.netlify_guard.outputs.enabled == 'true'
         working-directory: siap-pmi-admin
         run: npm ci
       - name: Lint
-        if: steps.netlify_guard.outputs.enabled == 'true'
         working-directory: siap-pmi-admin
         run: npm run lint
       - name: Build
-        if: steps.netlify_guard.outputs.enabled == 'true'
         working-directory: siap-pmi-admin
         run: npm run build
       - name: Install Netlify CLI
         if: steps.netlify_guard.outputs.enabled == 'true'
         run: npm i -g netlify-cli@latest
       - name: Deploy (Netlify)
-        if: steps.netlify_guard.outputs.enabled == 'true'
         working-directory: siap-pmi-admin
         run: netlify deploy --dir .next --build --prod --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN"
