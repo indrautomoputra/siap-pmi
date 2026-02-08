@@ -1,39 +1,12 @@
-alter table public.events enable row level security;
-alter table public.enrollments enable row level security;
-alter table public.event_role_assignments enable row level security;
-alter table public.assessment_instruments enable row level security;
-alter table public.assessment_scores enable row level security;
-alter table public.kap_responses enable row level security;
-alter table public.kap_instruments enable row level security;
-alter table public.kap_questions enable row level security;
-alter table public.assessment_criteria enable row level security;
-alter table public.enrollment_documents enable row level security;
-alter table public.enrollment_ksr_basic_details enable row level security;
-alter table public.enrollment_general_details enable row level security;
-alter table public.graduation_decisions enable row level security;
-alter table public.audit_logs enable row level security;
-alter table public.evaluations enable row level security;
-alter table public.users enable row level security;
-alter table public.organizations enable row level security;
-
-drop policy if exists "events_select_public" on public.events;
-drop policy if exists "events_write_open" on public.events;
-drop policy if exists "events_write_server_only" on public.events;
 drop policy if exists "events_select_member" on public.events;
 drop policy if exists "events_insert_panitia" on public.events;
 drop policy if exists "events_update_panitia" on public.events;
 drop policy if exists "events_delete_panitia" on public.events;
 
-drop policy if exists "enrollments_select_public" on public.enrollments;
-drop policy if exists "enrollments_write_open" on public.enrollments;
-drop policy if exists "enrollments_write_server_only" on public.enrollments;
 drop policy if exists "enrollments_insert_owner" on public.enrollments;
 drop policy if exists "enrollments_select_owner_or_panitia_or_observer" on public.enrollments;
 drop policy if exists "enrollments_update_panitia" on public.enrollments;
 
-drop policy if exists "event_role_assignments_select_public" on public.event_role_assignments;
-drop policy if exists "event_role_assignments_write_open" on public.event_role_assignments;
-drop policy if exists "event_roles_write_server_only" on public.event_role_assignments;
 drop policy if exists "event_roles_select_panitia_or_observer" on public.event_role_assignments;
 drop policy if exists "event_roles_insert_panitia" on public.event_role_assignments;
 drop policy if exists "event_roles_update_panitia" on public.event_role_assignments;
@@ -43,33 +16,43 @@ drop policy if exists "assessment_instruments_select_recap" on public.assessment
 drop policy if exists "assessment_instruments_insert_panitia" on public.assessment_instruments;
 drop policy if exists "assessment_instruments_update_panitia" on public.assessment_instruments;
 drop policy if exists "assessment_instruments_delete_panitia" on public.assessment_instruments;
+
 drop policy if exists "assessment_scores_insert_pelatih" on public.assessment_scores;
 drop policy if exists "assessment_scores_select_recap" on public.assessment_scores;
 
 drop policy if exists "kap_responses_insert_authenticated" on public.kap_responses;
 drop policy if exists "kap_responses_select_recap" on public.kap_responses;
+
+drop policy if exists "kap_instruments_select_member" on public.kap_instruments;
 drop policy if exists "kap_instruments_insert_panitia" on public.kap_instruments;
 drop policy if exists "kap_instruments_update_panitia" on public.kap_instruments;
 drop policy if exists "kap_instruments_delete_panitia" on public.kap_instruments;
+
+drop policy if exists "kap_questions_select_member" on public.kap_questions;
 drop policy if exists "kap_questions_insert_panitia" on public.kap_questions;
 drop policy if exists "kap_questions_update_panitia" on public.kap_questions;
 drop policy if exists "kap_questions_delete_panitia" on public.kap_questions;
-drop policy if exists "kap_instruments_select_member" on public.kap_instruments;
-drop policy if exists "kap_questions_select_member" on public.kap_questions;
+
 drop policy if exists "assessment_criteria_select_member" on public.assessment_criteria;
 drop policy if exists "assessment_criteria_insert_panitia" on public.assessment_criteria;
 drop policy if exists "assessment_criteria_update_panitia" on public.assessment_criteria;
 drop policy if exists "assessment_criteria_delete_panitia" on public.assessment_criteria;
+
 drop policy if exists "enrollment_documents_insert_owner" on public.enrollment_documents;
-drop policy if exists "enrollment_ksr_basic_details_insert_owner" on public.enrollment_ksr_basic_details;
-drop policy if exists "enrollment_general_details_insert_owner" on public.enrollment_general_details;
 drop policy if exists "enrollment_documents_select_member" on public.enrollment_documents;
+
+drop policy if exists "enrollment_ksr_basic_details_insert_owner" on public.enrollment_ksr_basic_details;
 drop policy if exists "enrollment_ksr_basic_details_select_member" on public.enrollment_ksr_basic_details;
+
+drop policy if exists "enrollment_general_details_insert_owner" on public.enrollment_general_details;
 drop policy if exists "enrollment_general_details_select_member" on public.enrollment_general_details;
+
 drop policy if exists "graduation_decisions_select_view_report" on public.graduation_decisions;
 drop policy if exists "graduation_decisions_insert_panitia_or_pelatih" on public.graduation_decisions;
+
 drop policy if exists "audit_logs_select_panitia_or_observer" on public.audit_logs;
 drop policy if exists "audit_logs_insert_actor" on public.audit_logs;
+
 drop policy if exists "evaluations_insert_owner" on public.evaluations;
 drop policy if exists "evaluations_select_owner_or_panitia_or_pelatih" on public.evaluations;
 
