@@ -9,6 +9,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '../../infrastructure/auth/auth.guard';
+import { EventContextGuard } from '../../core/event-context/event-context.guard';
+import { EventRole } from '../../core/event-context/event-role.decorator';
 import {
   DecideGraduationDto,
   GraduationDecisionsResponseDto,
@@ -16,10 +18,11 @@ import {
 import { GraduationService } from './graduations.service';
 
 @Controller('events/:eventId/graduations')
+@UseGuards(AuthGuard, EventContextGuard)
 export class GraduationsController {
   constructor(private readonly graduationService: GraduationService) {}
 
-  @UseGuards(AuthGuard)
+  @EventRole('PANITIA', 'PELATIH')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   @Post('decide')
   decide(
@@ -34,7 +37,7 @@ export class GraduationsController {
     );
   }
 
-  @UseGuards(AuthGuard)
+  @EventRole('PANITIA', 'PELATIH', 'OBSERVER')
   @Get()
   listByEvent(
     @Param('eventId') eventId: string,

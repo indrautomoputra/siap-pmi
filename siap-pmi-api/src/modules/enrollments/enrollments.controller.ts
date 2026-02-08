@@ -15,10 +15,15 @@ import { Enrollment } from './enrollments.types';
 import { EventId } from '../events/events.types';
 import { AuthGuard } from '../../infrastructure/auth/auth.guard';
 import { EventContextGuard } from '../../core/event-context/event-context.guard';
+import { CurrentEvent } from '../../core/event-context/current-event.decorator';
+import type { CurrentEventContext } from '../../core/event-context/event-context.types';
 import { AttachEnrollmentDocumentDto } from './attach-enrollment-document.dto';
 import { EnrollmentDocumentsService } from './enrollment-documents.service';
 import { AuthService } from '../../infrastructure/auth/auth.service';
+import type { CurrentUser as AuthCurrentUser } from '../../infrastructure/auth/auth.service';
 import { getCurrentUser } from '../../infrastructure/auth/current-user';
+import type { CurrentUserContext } from '../../infrastructure/auth/current-user';
+import { CurrentUser } from '../../core/auth-context/current-user.decorator';
 
 class CreateEnrollmentRequestDto {
   @IsUUID()
@@ -40,11 +45,30 @@ export class EnrollmentsController {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   @Post()
   createEnrollment(
+    @CurrentEvent() currentEvent: CurrentEventContext | undefined,
+    @CurrentUser()
+    currentUser: AuthCurrentUser | CurrentUserContext | undefined,
     @Body() dto: CreateEnrollmentRequestDto,
   ): Promise<{ enrollmentId: string }> {
+    if (!currentEvent?.eventId) {
+      throw new Error('Event context is missing');
+    }
+    if (dto.event_id !== currentEvent.eventId) {
+      throw new Error('event_id tidak sesuai dengan event pada context');
+    }
+    const userId =
+      currentUser && 'userId' in currentUser
+        ? currentUser.userId
+        : currentUser?.id;
+    if (!userId) {
+      throw new Error('Missing current user');
+    }
+    if (dto.user_id !== userId) {
+      throw new Error('user_id tidak sesuai dengan user saat ini');
+    }
     return this.enrollmentsService.createEnrollmentForUser(
-      dto.event_id,
-      dto.user_id,
+      currentEvent.eventId,
+      userId,
     );
   }
 

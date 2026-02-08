@@ -10,7 +10,10 @@ import {
 import { EventAuthorizationPolicy } from '../event-roles/event-authorization.policy';
 import { EventPermission } from '../event-roles/event-roles.types';
 import { EnrollmentsRepository } from '../enrollments/enrollments.repository';
-import { EnrollmentNotFound } from '../enrollments/enrollments.errors';
+import {
+  EnrollmentAccessDenied,
+  EnrollmentNotFound,
+} from '../enrollments/enrollments.errors';
 import { EventAlreadyCompleted, EventNotFound } from '../events/events.errors';
 import { EventPolicy } from '../events/events.policy';
 import { EventsService } from '../events/events.service';
@@ -80,6 +83,9 @@ export class GraduationService {
     const enrollment = await this.enrollmentsRepository.findById(enrollmentId);
     if (!enrollment) {
       throw new EnrollmentNotFound(enrollmentId);
+    }
+    if (enrollment.eventId !== eventId) {
+      throw new EnrollmentAccessDenied(enrollmentId, currentUser.userId);
     }
     this.graduationPolicy.assertEnrollmentApproved(enrollment);
     this.graduationPolicy.assertDeciderIsPanitiaOrPelatih(currentUser, eventId);

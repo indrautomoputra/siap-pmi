@@ -41,7 +41,7 @@ export class AssessmentScoresController {
     return this.assessmentScoresService.listByEvent(eventId);
   }
 
-  @EventRole('PELATIH', 'OBSERVER')
+  @EventRole('PELATIH')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   @Post()
   createAssessment(

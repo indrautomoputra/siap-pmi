@@ -29,17 +29,6 @@ const normalizeHeaderValue = (value: HeaderValue): string | null => {
   return value;
 };
 
-const getEventId = (request: Request): string | null => {
-  const headerValue = normalizeHeaderValue(request.headers['x-event-id']);
-  if (headerValue) {
-    return headerValue.trim();
-  }
-  if (typeof request.params?.eventId === 'string') {
-    return request.params.eventId;
-  }
-  return null;
-};
-
 @Injectable()
 export class EventContextGuard implements CanActivate {
   constructor(
@@ -51,7 +40,21 @@ export class EventContextGuard implements CanActivate {
     const request = context
       .switchToHttp()
       .getRequest<RequestWithEventContext>();
-    const eventId = getEventId(request);
+    const headerValue = normalizeHeaderValue(request.headers['x-event-id']);
+    const headerEventId = headerValue?.trim() ?? null;
+    const paramEventId =
+      typeof request.params?.eventId === 'string'
+        ? request.params.eventId
+        : null;
+    if (headerEventId && paramEventId && headerEventId !== paramEventId) {
+      const currentUser = await this.authContextService.getCurrentUser();
+      throw new PermissionDeniedForEvent(
+        currentUser.userId,
+        paramEventId,
+        'EVENT_CONTEXT_MISMATCH',
+      );
+    }
+    const eventId = headerEventId ?? paramEventId;
     // Asumsi: endpoint tanpa eventId tetap boleh lewat guard.
     if (!eventId) {
       return true;

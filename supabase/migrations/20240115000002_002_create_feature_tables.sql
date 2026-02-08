@@ -94,6 +94,14 @@ create table if not exists public.kap_responses (
   submitted_at timestamptz not null default now()
 );
 
+create table if not exists public.evaluations (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null,
+  enrollment_id uuid not null,
+  responses jsonb not null,
+  submitted_at timestamptz not null default now()
+);
+
 create table if not exists public.graduation_decisions (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null,
@@ -118,12 +126,28 @@ create table if not exists public.audit_logs (
 do $$
 begin
   if to_regclass('public.enrollment_documents') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'enrollment_documents_enrollment_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'enrollment_documents'
+        and column_name = 'enrollment_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'enrollments'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.enrollment_documents
-        add constraint enrollment_documents_enrollment_id_fkey
-        foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'enrollment_documents_enrollment_id_fkey'
+      ) then
+        alter table public.enrollment_documents
+          add constraint enrollment_documents_enrollment_id_fkey
+          foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -131,12 +155,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.enrollment_ksr_basic_details') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'enrollment_ksr_basic_details_enrollment_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'enrollment_ksr_basic_details'
+        and column_name = 'enrollment_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'enrollments'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.enrollment_ksr_basic_details
-        add constraint enrollment_ksr_basic_details_enrollment_id_fkey
-        foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'enrollment_ksr_basic_details_enrollment_id_fkey'
+      ) then
+        alter table public.enrollment_ksr_basic_details
+          add constraint enrollment_ksr_basic_details_enrollment_id_fkey
+          foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -144,12 +184,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.enrollment_general_details') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'enrollment_general_details_enrollment_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'enrollment_general_details'
+        and column_name = 'enrollment_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'enrollments'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.enrollment_general_details
-        add constraint enrollment_general_details_enrollment_id_fkey
-        foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'enrollment_general_details_enrollment_id_fkey'
+      ) then
+        alter table public.enrollment_general_details
+          add constraint enrollment_general_details_enrollment_id_fkey
+          foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -157,12 +213,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.assessment_instruments') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'assessment_instruments_event_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'assessment_instruments'
+        and column_name = 'event_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'events'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.assessment_instruments
-        add constraint assessment_instruments_event_id_fkey
-        foreign key (event_id) references public.events(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'assessment_instruments_event_id_fkey'
+      ) then
+        alter table public.assessment_instruments
+          add constraint assessment_instruments_event_id_fkey
+          foreign key (event_id) references public.events(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -170,12 +242,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.assessment_criteria') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'assessment_criteria_instrument_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'assessment_criteria'
+        and column_name = 'instrument_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'assessment_instruments'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.assessment_criteria
-        add constraint assessment_criteria_instrument_id_fkey
-        foreign key (instrument_id) references public.assessment_instruments(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'assessment_criteria_instrument_id_fkey'
+      ) then
+        alter table public.assessment_criteria
+          add constraint assessment_criteria_instrument_id_fkey
+          foreign key (instrument_id) references public.assessment_instruments(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -183,12 +271,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.assessment_scores') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'assessment_scores_instrument_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'assessment_scores'
+        and column_name = 'instrument_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'assessment_instruments'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.assessment_scores
-        add constraint assessment_scores_instrument_id_fkey
-        foreign key (instrument_id) references public.assessment_instruments(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'assessment_scores_instrument_id_fkey'
+      ) then
+        alter table public.assessment_scores
+          add constraint assessment_scores_instrument_id_fkey
+          foreign key (instrument_id) references public.assessment_instruments(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -196,12 +300,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.assessment_scores') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'assessment_scores_enrollment_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'assessment_scores'
+        and column_name = 'enrollment_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'enrollments'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.assessment_scores
-        add constraint assessment_scores_enrollment_id_fkey
-        foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'assessment_scores_enrollment_id_fkey'
+      ) then
+        alter table public.assessment_scores
+          add constraint assessment_scores_enrollment_id_fkey
+          foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -209,12 +329,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.kap_instruments') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'kap_instruments_event_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'kap_instruments'
+        and column_name = 'event_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'events'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.kap_instruments
-        add constraint kap_instruments_event_id_fkey
-        foreign key (event_id) references public.events(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'kap_instruments_event_id_fkey'
+      ) then
+        alter table public.kap_instruments
+          add constraint kap_instruments_event_id_fkey
+          foreign key (event_id) references public.events(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -222,12 +358,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.kap_questions') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'kap_questions_instrument_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'kap_questions'
+        and column_name = 'instrument_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'kap_instruments'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.kap_questions
-        add constraint kap_questions_instrument_id_fkey
-        foreign key (instrument_id) references public.kap_instruments(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'kap_questions_instrument_id_fkey'
+      ) then
+        alter table public.kap_questions
+          add constraint kap_questions_instrument_id_fkey
+          foreign key (instrument_id) references public.kap_instruments(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -235,12 +387,86 @@ end $$;
 do $$
 begin
   if to_regclass('public.kap_responses') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'kap_responses_instrument_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'kap_responses'
+        and column_name = 'instrument_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'kap_instruments'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.kap_responses
-        add constraint kap_responses_instrument_id_fkey
-        foreign key (instrument_id) references public.kap_instruments(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'kap_responses_instrument_id_fkey'
+      ) then
+        alter table public.kap_responses
+          add constraint kap_responses_instrument_id_fkey
+          foreign key (instrument_id) references public.kap_instruments(id) on delete cascade;
+      end if;
+    end if;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.evaluations') is not null then
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'evaluations'
+        and column_name = 'event_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'events'
+        and column_name = 'id'
+        and data_type = 'uuid'
+    ) then
+      if not exists (
+        select 1 from pg_constraint where conname = 'evaluations_event_id_fkey'
+      ) then
+        alter table public.evaluations
+          add constraint evaluations_event_id_fkey
+          foreign key (event_id) references public.events(id) on delete cascade;
+      end if;
+    end if;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.evaluations') is not null then
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'evaluations'
+        and column_name = 'enrollment_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'enrollments'
+        and column_name = 'id'
+        and data_type = 'uuid'
+    ) then
+      if not exists (
+        select 1 from pg_constraint where conname = 'evaluations_enrollment_id_fkey'
+      ) then
+        alter table public.evaluations
+          add constraint evaluations_enrollment_id_fkey
+          foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -248,12 +474,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.graduation_decisions') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'graduation_decisions_event_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'graduation_decisions'
+        and column_name = 'event_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'events'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.graduation_decisions
-        add constraint graduation_decisions_event_id_fkey
-        foreign key (event_id) references public.events(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'graduation_decisions_event_id_fkey'
+      ) then
+        alter table public.graduation_decisions
+          add constraint graduation_decisions_event_id_fkey
+          foreign key (event_id) references public.events(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -261,12 +503,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.graduation_decisions') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'graduation_decisions_enrollment_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'graduation_decisions'
+        and column_name = 'enrollment_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'enrollments'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.graduation_decisions
-        add constraint graduation_decisions_enrollment_id_fkey
-        foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'graduation_decisions_enrollment_id_fkey'
+      ) then
+        alter table public.graduation_decisions
+          add constraint graduation_decisions_enrollment_id_fkey
+          foreign key (enrollment_id) references public.enrollments(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -274,12 +532,28 @@ end $$;
 do $$
 begin
   if to_regclass('public.audit_logs') is not null then
-    if not exists (
-      select 1 from pg_constraint where conname = 'audit_logs_event_id_fkey'
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'audit_logs'
+        and column_name = 'event_id'
+        and data_type = 'uuid'
+    ) and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'events'
+        and column_name = 'id'
+        and data_type = 'uuid'
     ) then
-      alter table public.audit_logs
-        add constraint audit_logs_event_id_fkey
-        foreign key (event_id) references public.events(id) on delete cascade;
+      if not exists (
+        select 1 from pg_constraint where conname = 'audit_logs_event_id_fkey'
+      ) then
+        alter table public.audit_logs
+          add constraint audit_logs_event_id_fkey
+          foreign key (event_id) references public.events(id) on delete cascade;
+      end if;
     end if;
   end if;
 end $$;
@@ -306,6 +580,19 @@ begin
       alter table public.kap_responses
         add constraint kap_responses_instrument_hash_unique
         unique (instrument_id, enrollment_hash);
+    end if;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.evaluations') is not null then
+    if not exists (
+      select 1 from pg_constraint where conname = 'evaluations_event_enrollment_unique'
+    ) then
+      alter table public.evaluations
+        add constraint evaluations_event_enrollment_unique
+        unique (event_id, enrollment_id);
     end if;
   end if;
 end $$;
@@ -349,6 +636,12 @@ create index if not exists kap_questions_instrument_id_idx
 
 create index if not exists kap_responses_instrument_id_idx
   on public.kap_responses (instrument_id);
+
+create index if not exists evaluations_event_id_idx
+  on public.evaluations (event_id);
+
+create index if not exists evaluations_enrollment_id_idx
+  on public.evaluations (enrollment_id);
 
 create index if not exists graduation_decisions_event_id_idx
   on public.graduation_decisions (event_id);

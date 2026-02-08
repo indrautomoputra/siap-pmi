@@ -11,7 +11,10 @@ import { EventsService } from '../events/events.service';
 import { EventAuthorizationPolicy } from '../event-roles/event-authorization.policy';
 import { EventPermission } from '../event-roles/event-roles.types';
 import { EnrollmentsRepository } from '../enrollments/enrollments.repository';
-import { EnrollmentNotFound } from '../enrollments/enrollments.errors';
+import {
+  EnrollmentAccessDenied,
+  EnrollmentNotFound,
+} from '../enrollments/enrollments.errors';
 import { AssessmentPolicy } from './assessment.policy';
 import { AssessmentRepository } from './assessment.repository';
 import {
@@ -138,6 +141,9 @@ export class AssessmentService {
     );
     if (!enrollment) {
       throw new EnrollmentNotFound(dto.enrollmentId);
+    }
+    if (enrollment.eventId !== instrument.eventId) {
+      throw new EnrollmentAccessDenied(dto.enrollmentId, user.userId);
     }
     this.assessmentPolicy.assertEnrollmentApproved(enrollment);
     await this.assessmentPolicy.assertNotScoredYet(

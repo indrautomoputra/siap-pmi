@@ -93,6 +93,22 @@ create table if not exists public.organizations (
 do $$
 begin
   if to_regclass('public.enrollments') is not null then
+    alter table public.enrollments
+      add column if not exists user_id uuid null;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.event_role_assignments') is not null then
+    alter table public.event_role_assignments
+      add column if not exists user_id uuid null;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regclass('public.enrollments') is not null then
     if not exists (
       select 1 from pg_constraint where conname = 'enrollments_event_id_fkey'
     ) then
@@ -180,3 +196,18 @@ begin
     end if;
   end if;
 end $$;
+
+create index if not exists enrollments_event_id_idx
+  on public.enrollments (event_id);
+
+create index if not exists enrollments_user_id_idx
+  on public.enrollments (user_id);
+
+create index if not exists event_role_assignments_event_id_idx
+  on public.event_role_assignments (event_id);
+
+create index if not exists event_role_assignments_user_id_idx
+  on public.event_role_assignments (user_id);
+
+create index if not exists event_role_assignments_role_idx
+  on public.event_role_assignments (role);
