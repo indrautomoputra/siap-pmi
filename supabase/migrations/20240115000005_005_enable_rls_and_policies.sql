@@ -76,93 +76,93 @@ drop policy if exists "evaluations_select_owner_or_panitia_or_pelatih" on public
 create policy "events_select_member"
   on public.events
   for select
-  using (public.is_event_member(auth.uid(), id));
+  using (public.is_event_member(auth.uid(), id::text));
 
 create policy "events_insert_panitia"
   on public.events
   for insert
-  with check (public.has_event_role(auth.uid(), id, 'PANITIA'));
+  with check (public.has_event_role(auth.uid(), id::text, 'PANITIA'));
 
 create policy "events_update_panitia"
   on public.events
   for update
-  using (public.has_event_role(auth.uid(), id, 'PANITIA'))
-  with check (public.has_event_role(auth.uid(), id, 'PANITIA'));
+  using (public.has_event_role(auth.uid(), id::text, 'PANITIA'))
+  with check (public.has_event_role(auth.uid(), id::text, 'PANITIA'));
 
 create policy "events_delete_panitia"
   on public.events
   for delete
-  using (public.has_event_role(auth.uid(), id, 'PANITIA'));
+  using (public.has_event_role(auth.uid(), id::text, 'PANITIA'));
 
 create policy "enrollments_insert_owner"
   on public.enrollments
   for insert
-  with check (auth.uid() = user_id);
+  with check (auth.uid()::text = user_id::text);
 
 create policy "enrollments_select_owner_or_panitia_or_observer"
   on public.enrollments
   for select
   using (
-    auth.uid() = user_id
-    or public.has_event_role(auth.uid(), event_id, 'PANITIA')
-    or public.has_event_role(auth.uid(), event_id, 'PELATIH')
-    or public.has_event_role(auth.uid(), event_id, 'OBSERVER')
+    auth.uid()::text = user_id::text
+    or public.has_event_role(auth.uid(), event_id::text, 'PANITIA')
+    or public.has_event_role(auth.uid(), event_id::text, 'PELATIH')
+    or public.has_event_role(auth.uid(), event_id::text, 'OBSERVER')
   );
 
 create policy "enrollments_update_panitia"
   on public.enrollments
   for update
-  using (public.has_event_role(auth.uid(), event_id, 'PANITIA'))
-  with check (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  using (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'))
+  with check (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "event_roles_select_panitia_or_observer"
   on public.event_role_assignments
   for select
   using (
-    public.has_event_role(auth.uid(), event_id, 'PANITIA')
-    or public.has_event_role(auth.uid(), event_id, 'OBSERVER')
+    public.has_event_role(auth.uid(), event_id::text, 'PANITIA')
+    or public.has_event_role(auth.uid(), event_id::text, 'OBSERVER')
   );
 
 create policy "event_roles_insert_panitia"
   on public.event_role_assignments
   for insert
-  with check (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  with check (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "event_roles_update_panitia"
   on public.event_role_assignments
   for update
-  using (public.has_event_role(auth.uid(), event_id, 'PANITIA'))
-  with check (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  using (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'))
+  with check (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "event_roles_delete_panitia"
   on public.event_role_assignments
   for delete
-  using (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  using (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "assessment_instruments_select_recap"
   on public.assessment_instruments
   for select
   using (
-    public.has_event_role(auth.uid(), event_id, 'PANITIA')
-    or public.has_event_role(auth.uid(), event_id, 'PELATIH')
-    or public.has_event_role(auth.uid(), event_id, 'OBSERVER')
+    public.has_event_role(auth.uid(), event_id::text, 'PANITIA')
+    or public.has_event_role(auth.uid(), event_id::text, 'PELATIH')
+    or public.has_event_role(auth.uid(), event_id::text, 'OBSERVER')
   );
 
 create policy "assessment_instruments_insert_panitia"
   on public.assessment_instruments
   for insert
-  with check (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  with check (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "assessment_instruments_update_panitia"
   on public.assessment_instruments
   for update
-  using (public.has_event_role(auth.uid(), event_id, 'PANITIA'))
-  with check (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  using (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'))
+  with check (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "assessment_instruments_delete_panitia"
   on public.assessment_instruments
   for delete
-  using (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  using (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "assessment_scores_insert_pelatih"
   on public.assessment_scores
@@ -171,10 +171,10 @@ create policy "assessment_scores_insert_pelatih"
     exists (
       select 1
       from public.assessment_instruments ai
-      join public.enrollments e on e.id = assessment_scores.enrollment_id
-      where ai.id = assessment_scores.instrument_id
-        and e.event_id = ai.event_id
-        and public.has_event_role(auth.uid(), ai.event_id, 'PELATIH')
+      join public.enrollments e on e.id::text = assessment_scores.enrollment_id::text
+      where ai.id::text = assessment_scores.instrument_id::text
+        and e.event_id::text = ai.event_id::text
+        and public.has_event_role(auth.uid(), ai.event_id::text, 'PELATIH')
     )
   );
 
@@ -185,11 +185,11 @@ create policy "assessment_scores_select_recap"
     exists (
       select 1
       from public.assessment_instruments ai
-      where ai.id = assessment_scores.instrument_id
+      where ai.id::text = assessment_scores.instrument_id::text
         and (
-          public.has_event_role(auth.uid(), ai.event_id, 'PANITIA')
-          or public.has_event_role(auth.uid(), ai.event_id, 'PELATIH')
-          or public.has_event_role(auth.uid(), ai.event_id, 'OBSERVER')
+          public.has_event_role(auth.uid(), ai.event_id::text, 'PANITIA')
+          or public.has_event_role(auth.uid(), ai.event_id::text, 'PELATIH')
+          or public.has_event_role(auth.uid(), ai.event_id::text, 'OBSERVER')
         )
     )
   );
@@ -201,8 +201,8 @@ create policy "kap_responses_insert_authenticated"
     exists (
       select 1
       from public.kap_instruments ki
-      where ki.id = kap_responses.instrument_id
-        and public.is_event_member(auth.uid(), ki.event_id)
+      where ki.id::text = kap_responses.instrument_id::text
+        and public.is_event_member(auth.uid(), ki.event_id::text)
     )
   );
 
@@ -213,10 +213,10 @@ create policy "kap_responses_select_recap"
     exists (
       select 1
       from public.kap_instruments ki
-      where ki.id = kap_responses.instrument_id
+      where ki.id::text = kap_responses.instrument_id::text
         and (
-          public.has_event_role(auth.uid(), ki.event_id, 'PANITIA')
-          or public.has_event_role(auth.uid(), ki.event_id, 'OBSERVER')
+          public.has_event_role(auth.uid(), ki.event_id::text, 'PANITIA')
+          or public.has_event_role(auth.uid(), ki.event_id::text, 'OBSERVER')
         )
     )
   );
@@ -224,23 +224,23 @@ create policy "kap_responses_select_recap"
 create policy "kap_instruments_select_member"
   on public.kap_instruments
   for select
-  using (public.is_event_member(auth.uid(), event_id));
+  using (public.is_event_member(auth.uid(), event_id::text));
 
 create policy "kap_instruments_insert_panitia"
   on public.kap_instruments
   for insert
-  with check (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  with check (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "kap_instruments_update_panitia"
   on public.kap_instruments
   for update
-  using (public.has_event_role(auth.uid(), event_id, 'PANITIA'))
-  with check (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  using (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'))
+  with check (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "kap_instruments_delete_panitia"
   on public.kap_instruments
   for delete
-  using (public.has_event_role(auth.uid(), event_id, 'PANITIA'));
+  using (public.has_event_role(auth.uid(), event_id::text, 'PANITIA'));
 
 create policy "kap_questions_select_member"
   on public.kap_questions
@@ -249,8 +249,8 @@ create policy "kap_questions_select_member"
     exists (
       select 1
       from public.kap_instruments ki
-      where ki.id = kap_questions.instrument_id
-        and public.is_event_member(auth.uid(), ki.event_id)
+      where ki.id::text = kap_questions.instrument_id::text
+        and public.is_event_member(auth.uid(), ki.event_id::text)
     )
   );
 
@@ -261,8 +261,8 @@ create policy "kap_questions_insert_panitia"
     exists (
       select 1
       from public.kap_instruments ki
-      where ki.id = kap_questions.instrument_id
-        and public.has_event_role(auth.uid(), ki.event_id, 'PANITIA')
+      where ki.id::text = kap_questions.instrument_id::text
+        and public.has_event_role(auth.uid(), ki.event_id::text, 'PANITIA')
     )
   );
 
@@ -273,16 +273,16 @@ create policy "kap_questions_update_panitia"
     exists (
       select 1
       from public.kap_instruments ki
-      where ki.id = kap_questions.instrument_id
-        and public.has_event_role(auth.uid(), ki.event_id, 'PANITIA')
+      where ki.id::text = kap_questions.instrument_id::text
+        and public.has_event_role(auth.uid(), ki.event_id::text, 'PANITIA')
     )
   )
   with check (
     exists (
       select 1
       from public.kap_instruments ki
-      where ki.id = kap_questions.instrument_id
-        and public.has_event_role(auth.uid(), ki.event_id, 'PANITIA')
+      where ki.id::text = kap_questions.instrument_id::text
+        and public.has_event_role(auth.uid(), ki.event_id::text, 'PANITIA')
     )
   );
 
@@ -293,8 +293,8 @@ create policy "kap_questions_delete_panitia"
     exists (
       select 1
       from public.kap_instruments ki
-      where ki.id = kap_questions.instrument_id
-        and public.has_event_role(auth.uid(), ki.event_id, 'PANITIA')
+      where ki.id::text = kap_questions.instrument_id::text
+        and public.has_event_role(auth.uid(), ki.event_id::text, 'PANITIA')
     )
   );
 
@@ -305,8 +305,8 @@ create policy "assessment_criteria_select_member"
     exists (
       select 1
       from public.assessment_instruments ai
-      where ai.id = assessment_criteria.instrument_id
-        and public.is_event_member(auth.uid(), ai.event_id)
+      where ai.id::text = assessment_criteria.instrument_id::text
+        and public.is_event_member(auth.uid(), ai.event_id::text)
     )
   );
 
@@ -317,8 +317,8 @@ create policy "assessment_criteria_insert_panitia"
     exists (
       select 1
       from public.assessment_instruments ai
-      where ai.id = assessment_criteria.instrument_id
-        and public.has_event_role(auth.uid(), ai.event_id, 'PANITIA')
+      where ai.id::text = assessment_criteria.instrument_id::text
+        and public.has_event_role(auth.uid(), ai.event_id::text, 'PANITIA')
     )
   );
 
@@ -329,16 +329,16 @@ create policy "assessment_criteria_update_panitia"
     exists (
       select 1
       from public.assessment_instruments ai
-      where ai.id = assessment_criteria.instrument_id
-        and public.has_event_role(auth.uid(), ai.event_id, 'PANITIA')
+      where ai.id::text = assessment_criteria.instrument_id::text
+        and public.has_event_role(auth.uid(), ai.event_id::text, 'PANITIA')
     )
   )
   with check (
     exists (
       select 1
       from public.assessment_instruments ai
-      where ai.id = assessment_criteria.instrument_id
-        and public.has_event_role(auth.uid(), ai.event_id, 'PANITIA')
+      where ai.id::text = assessment_criteria.instrument_id::text
+        and public.has_event_role(auth.uid(), ai.event_id::text, 'PANITIA')
     )
   );
 
@@ -349,8 +349,8 @@ create policy "assessment_criteria_delete_panitia"
     exists (
       select 1
       from public.assessment_instruments ai
-      where ai.id = assessment_criteria.instrument_id
-        and public.has_event_role(auth.uid(), ai.event_id, 'PANITIA')
+      where ai.id::text = assessment_criteria.instrument_id::text
+        and public.has_event_role(auth.uid(), ai.event_id::text, 'PANITIA')
     )
   );
 
@@ -361,8 +361,8 @@ create policy "enrollment_documents_insert_owner"
     exists (
       select 1
       from public.enrollments e
-      where e.id = enrollment_documents.enrollment_id
-        and e.user_id = auth.uid()
+      where e.id::text = enrollment_documents.enrollment_id::text
+        and e.user_id::text = auth.uid()::text
     )
   );
 
@@ -373,11 +373,11 @@ create policy "enrollment_documents_select_member"
     exists (
       select 1
       from public.enrollments e
-      where e.id = enrollment_documents.enrollment_id
+      where e.id::text = enrollment_documents.enrollment_id::text
         and (
-          e.user_id = auth.uid()
-          or public.has_event_role(auth.uid(), e.event_id, 'PANITIA')
-          or public.has_event_role(auth.uid(), e.event_id, 'OBSERVER')
+          e.user_id::text = auth.uid()::text
+          or public.has_event_role(auth.uid(), e.event_id::text, 'PANITIA')
+          or public.has_event_role(auth.uid(), e.event_id::text, 'OBSERVER')
         )
     )
   );
@@ -389,8 +389,8 @@ create policy "enrollment_ksr_basic_details_insert_owner"
     exists (
       select 1
       from public.enrollments e
-      where e.id = enrollment_ksr_basic_details.enrollment_id
-        and e.user_id = auth.uid()
+      where e.id::text = enrollment_ksr_basic_details.enrollment_id::text
+        and e.user_id::text = auth.uid()::text
     )
   );
 
@@ -401,11 +401,11 @@ create policy "enrollment_ksr_basic_details_select_member"
     exists (
       select 1
       from public.enrollments e
-      where e.id = enrollment_ksr_basic_details.enrollment_id
+      where e.id::text = enrollment_ksr_basic_details.enrollment_id::text
         and (
-          e.user_id = auth.uid()
-          or public.has_event_role(auth.uid(), e.event_id, 'PANITIA')
-          or public.has_event_role(auth.uid(), e.event_id, 'OBSERVER')
+          e.user_id::text = auth.uid()::text
+          or public.has_event_role(auth.uid(), e.event_id::text, 'PANITIA')
+          or public.has_event_role(auth.uid(), e.event_id::text, 'OBSERVER')
         )
     )
   );
@@ -417,8 +417,8 @@ create policy "enrollment_general_details_insert_owner"
     exists (
       select 1
       from public.enrollments e
-      where e.id = enrollment_general_details.enrollment_id
-        and e.user_id = auth.uid()
+      where e.id::text = enrollment_general_details.enrollment_id::text
+        and e.user_id::text = auth.uid()::text
     )
   );
 
@@ -429,11 +429,11 @@ create policy "enrollment_general_details_select_member"
     exists (
       select 1
       from public.enrollments e
-      where e.id = enrollment_general_details.enrollment_id
+      where e.id::text = enrollment_general_details.enrollment_id::text
         and (
-          e.user_id = auth.uid()
-          or public.has_event_role(auth.uid(), e.event_id, 'PANITIA')
-          or public.has_event_role(auth.uid(), e.event_id, 'OBSERVER')
+          e.user_id::text = auth.uid()::text
+          or public.has_event_role(auth.uid(), e.event_id::text, 'PANITIA')
+          or public.has_event_role(auth.uid(), e.event_id::text, 'OBSERVER')
         )
     )
   );
@@ -442,31 +442,31 @@ create policy "graduation_decisions_select_view_report"
   on public.graduation_decisions
   for select
   using (
-    public.has_event_role(auth.uid(), event_id, 'PANITIA')
-    or public.has_event_role(auth.uid(), event_id, 'OBSERVER')
+    public.has_event_role(auth.uid(), event_id::text, 'PANITIA')
+    or public.has_event_role(auth.uid(), event_id::text, 'OBSERVER')
   );
 
 create policy "graduation_decisions_insert_panitia_or_pelatih"
   on public.graduation_decisions
   for insert
   with check (
-    public.has_event_role(auth.uid(), event_id, 'PANITIA')
-    or public.has_event_role(auth.uid(), event_id, 'PELATIH')
+    public.has_event_role(auth.uid(), event_id::text, 'PANITIA')
+    or public.has_event_role(auth.uid(), event_id::text, 'PELATIH')
   );
 
 create policy "audit_logs_select_panitia_or_observer"
   on public.audit_logs
   for select
   using (
-    public.has_event_role(auth.uid(), event_id, 'PANITIA')
-    or public.has_event_role(auth.uid(), event_id, 'OBSERVER')
+    public.has_event_role(auth.uid(), event_id::text, 'PANITIA')
+    or public.has_event_role(auth.uid(), event_id::text, 'OBSERVER')
   );
 
 create policy "audit_logs_insert_actor"
   on public.audit_logs
   for insert
   with check (
-    auth.uid() = actor_user_id
+    auth.uid()::text = actor_user_id::text
     and event_id is not null
   );
 
@@ -477,9 +477,9 @@ create policy "evaluations_insert_owner"
     exists (
       select 1
       from public.enrollments e
-      where e.id = evaluations.enrollment_id
-        and e.user_id = auth.uid()
-        and e.event_id = evaluations.event_id
+      where e.id::text = evaluations.enrollment_id::text
+        and e.user_id::text = auth.uid()::text
+        and e.event_id::text = evaluations.event_id::text
     )
   );
 
@@ -490,9 +490,9 @@ create policy "evaluations_select_owner_or_panitia_or_pelatih"
     exists (
       select 1
       from public.enrollments e
-      where e.id = evaluations.enrollment_id
-        and e.user_id = auth.uid()
+      where e.id::text = evaluations.enrollment_id::text
+        and e.user_id::text = auth.uid()::text
     )
-    or public.has_event_role(auth.uid(), event_id, 'PANITIA')
-    or public.has_event_role(auth.uid(), event_id, 'PELATIH')
+    or public.has_event_role(auth.uid(), event_id::text, 'PANITIA')
+    or public.has_event_role(auth.uid(), event_id::text, 'PELATIH')
   );
