@@ -28,3 +28,13 @@ Pimpinan/Pejabat Berwenang: ______________________
 Jabatan: ______________________
 Tanggal: ______________________
 Tanda Tangan: ______________________
+
+Tanda Tangan Digital (QR)
+- Nama: Pimpinan Unit
+- Jabatan: ______________________
+- Tanggal: 2026-02-09
+- QR Image: ./signatures/qr_pimpinan_unit.png
+
+Verification Note
+- Cara verifikasi: scan QR, baca payload informasi (dokumen, path, penandatangan, tanggal, scope, freeze), dan cocokkan dengan dokumen ini. Dapat dilakukan secara offline.
+- Pernyataan: QR merupakan representasi tanda tangan administratif untuk keperluan arsip dan audit, bukan fitur aplikasi.

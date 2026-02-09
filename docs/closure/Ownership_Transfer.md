@@ -25,3 +25,13 @@ Pengesahan
 Pimpinan/Pejabat Berwenang: ______________________
 Tanggal: ______________________
 Tanda Tangan: ______________________
+
+Tanda Tangan Digital (QR)
+- Nama: PIC Operasional
+- Jabatan: ______________________
+- Tanggal: 2026-02-09
+- QR Image: ./signatures/qr_pic_operasional.png
+
+Verification Note
+- Cara verifikasi: scan QR, baca payload informasi (dokumen, path, penandatangan, tanggal, scope, freeze), dan cocokkan dengan dokumen ini. Dapat dilakukan secara offline.
+- Pernyataan: QR merupakan representasi tanda tangan administratif untuk keperluan arsip dan audit, bukan fitur aplikasi.
