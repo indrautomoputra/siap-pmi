@@ -181,17 +181,23 @@ export default function PesertaDashboardPage() {
               {evaluation ? (
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                   <div style={{ color: '#2e7d32' }}>Sudah terkirim</div>
-                  <Link href={`/events/${eventId}/peserta/evaluation`}>
-                    Lihat evaluasi (read-only)
+                  <Link
+                    href={`/events/${eventId}/peserta/evaluation`}
+                    aria-label="Lihat Evaluasi (read-only)"
+                  >
+                    Lihat Evaluasi (read-only)
                   </Link>
                 </div>
               ) : canWrite ? (
-                <Link href={`/events/${eventId}/peserta/evaluation`}>
+                <Link
+                  href={`/events/${eventId}/peserta/evaluation`}
+                  aria-label="Isi Evaluasi"
+                >
                   Isi Evaluasi
                 </Link>
               ) : (
                 <div style={{ display: 'grid', gap: 4 }}>
-                  <button type="button" disabled>
+                  <button type="button" disabled aria-label="Isi Evaluasi">
                     Isi Evaluasi
                   </button>
                   {disabledReason ? (

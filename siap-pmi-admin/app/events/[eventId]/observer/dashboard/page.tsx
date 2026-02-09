@@ -86,10 +86,10 @@ const getStatusMessage = (status: string) => {
 
 const getDisabledReason = (status: string) => {
   if (status === 'draft') return 'Event belum dimulai.';
-  if (status === 'published') return 'Event belum ongoing.';
+  if (status === 'published') return 'Event belum berlangsung.';
   if (status === 'completed') return 'Event sudah selesai.';
   if (status === 'cancelled') return 'Event dibatalkan.';
-  return 'Event belum ongoing.';
+  return 'Event belum berlangsung.';
 };
 
 export default function ObserverDashboardPage() {
@@ -242,13 +242,18 @@ export default function ObserverDashboardPage() {
                           {eventStatus === 'ongoing' ? (
                             <Link
                               href={`/events/${eventId}/observer/assessments/${item.enrollmentId}`}
+                              aria-label={`Nilai / Update Penilaian untuk ${item.displayName ?? item.participantName}`}
                             >
-                              Nilai/Update Penilaian
+                              Nilai / Update Penilaian
                             </Link>
                           ) : (
                             <div style={{ display: 'grid', gap: 4 }}>
-                              <button type="button" disabled>
-                                Nilai/Update Penilaian
+                              <button
+                                type="button"
+                                disabled
+                                aria-label={`Nilai / Update Penilaian untuk ${item.displayName ?? item.participantName}`}
+                              >
+                                Nilai / Update Penilaian
                               </button>
                               <div style={{ color: '#666', fontSize: 12 }}>
                                 {getDisabledReason(eventStatus)}

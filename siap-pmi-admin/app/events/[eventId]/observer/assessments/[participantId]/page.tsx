@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEventContext } from '../../../EventContext';
 import RequireEventRole from '@/components/RequireEventRole';
 import EmptyState from '@/components/EmptyState';
-import ErrorState from '@/components/ErrorState';
+import MessageBanner from '@/components/MessageBanner';
 import Forbidden from '@/components/Forbidden';
 import { eventFetch, ForbiddenError } from '@/lib/eventApi';
 
@@ -28,6 +28,11 @@ type ErrorDetail = {
   title: string;
   message: string;
   details?: string[];
+};
+
+type SuccessDetail = {
+  title: string;
+  message: string;
 };
 
 const parseErrorDetails = async (
@@ -90,7 +95,7 @@ export default function ObserverAssessmentPage() {
   const [submitting, setSubmitting] = useState(false);
   const [loadError, setLoadError] = useState<ErrorDetail | null>(null);
   const [submitError, setSubmitError] = useState<ErrorDetail | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [success, setSuccess] = useState<SuccessDetail | null>(null);
   const [forbidden, setForbidden] = useState(false);
   const [type, setType] = useState<'akademik' | 'sikap'>('akademik');
   const [instrumentId, setInstrumentId] = useState('');
@@ -189,7 +194,10 @@ export default function ObserverAssessmentPage() {
         setSubmitError(await parseErrorDetails(res, 'Gagal mengirim'));
         return;
       }
-      setSuccess('Penilaian berhasil dikirim.');
+      setSuccess({
+        title: 'Penilaian tersimpan',
+        message: 'Data tersimpan. Perubahan tidak dapat dilakukan.',
+      });
       await load();
     } catch (e) {
       if (e instanceof ForbiddenError) {
@@ -219,24 +227,26 @@ export default function ObserverAssessmentPage() {
           />
         )}
         {forbidden && <Forbidden />}
-        {loading && <p>Memuat...</p>}
+        {loading && <p>Memuat data penilaian…</p>}
         {!loading && !forbidden && loadError && (
-          <ErrorState
+          <MessageBanner
+            variant="error"
             title={loadError.title}
             message={loadError.message}
             details={loadError.details}
-            retry={load}
+            actionLabel="Coba lagi"
+            onAction={load}
           />
         )}
         {!loading && !forbidden && !loadError && !participantId && (
           <EmptyState title="Peserta tidak ditemukan." />
         )}
         {!loading && !forbidden && !loadError && participantId && (
-          <form onSubmit={onSubmit} style={{ marginTop: 16 }}>
+          <form onSubmit={onSubmit} style={{ marginTop: 16 }} aria-busy={loading || submitting}>
             {!canWrite || currentAssessment ? (
               <EmptyState
                 title="Mode read-only"
-                description="Penilaian tidak dapat diubah pada status ini."
+                description="Penilaian sudah terkirim atau event tidak sedang berlangsung."
               />
             ) : null}
             <label style={{ display: 'block', marginBottom: 8 }}>
@@ -274,35 +284,24 @@ export default function ObserverAssessmentPage() {
               />
             </label>
             {success && (
-              <div
-                style={{
-                  border: '1px solid #c8e6c9',
-                  background: '#e8f5e9',
-                  color: '#1b5e20',
-                  padding: 12,
-                  borderRadius: 8,
-                  marginBottom: 12,
-                }}
-              >
-                {success}
-              </div>
+              <MessageBanner
+                variant="success"
+                title={success.title}
+                message={success.message}
+              />
             )}
-            {currentAssessment && (
-              <div
-                style={{
-                  border: '1px solid #c8e6c9',
-                  background: '#e8f5e9',
-                  color: '#1b5e20',
-                  padding: 12,
-                  borderRadius: 8,
-                  marginBottom: 12,
-                }}
-              >
-                Penilaian sudah dikirim pada {currentAssessment.createdAt}
-              </div>
-            )}
+            {currentAssessment && !success ? (
+              <MessageBanner
+                variant="success"
+                title="Penilaian sudah terkirim"
+                message={`Terkirim pada ${new Date(
+                  currentAssessment.createdAt,
+                ).toLocaleString()}. Data bersifat read-only.`}
+              />
+            ) : null}
             {submitError && (
-              <ErrorState
+              <MessageBanner
+                variant="error"
                 title={submitError.title}
                 message={submitError.message}
                 details={submitError.details}
@@ -310,9 +309,10 @@ export default function ObserverAssessmentPage() {
             )}
             <button
               type="submit"
-              disabled={!canWrite || submitting || !!currentAssessment}
+              aria-label="Kirim Penilaian"
+              disabled={!canWrite || loading || submitting || !!currentAssessment}
             >
-              {submitting ? 'Mengirim...' : 'Kirim Penilaian'}
+              {submitting ? 'Mengirim Penilaian…' : 'Kirim Penilaian'}
             </button>
             {currentAssessment || success ? (
               <div style={{ marginTop: 12 }}>
@@ -321,6 +321,7 @@ export default function ObserverAssessmentPage() {
                   onClick={() =>
                     router.push(`/events/${eventId}/observer/dashboard`)
                   }
+                  aria-label="Kembali ke Dashboard Observer"
                 >
                   Kembali ke Dashboard
                 </button>

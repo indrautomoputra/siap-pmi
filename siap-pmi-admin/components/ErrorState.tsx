@@ -13,6 +13,8 @@ export default function ErrorState({
 }) {
   return (
     <div
+      role="alert"
+      aria-live="assertive"
       style={{
         border: '1px solid #f5c6cb',
         background: '#f8d7da',
@@ -33,6 +35,7 @@ export default function ErrorState({
       {retry ? (
         <button
           onClick={retry}
+          aria-label="Coba lagi"
           style={{
             marginTop: 8,
             padding: '6px 10px',

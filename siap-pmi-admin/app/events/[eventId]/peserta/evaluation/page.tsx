@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEventContext } from '../../EventContext';
 import RequireEventRole from '@/components/RequireEventRole';
 import EmptyState from '@/components/EmptyState';
-import ErrorState from '@/components/ErrorState';
+import MessageBanner from '@/components/MessageBanner';
 import Forbidden from '@/components/Forbidden';
 import { eventFetch, ForbiddenError } from '@/lib/eventApi';
 import { getSupabaseClient } from '@/lib/supabaseClient';
@@ -25,6 +25,11 @@ type ErrorDetail = {
   title: string;
   message: string;
   details?: string[];
+};
+
+type SuccessDetail = {
+  title: string;
+  message: string;
 };
 
 const parseErrorDetails = async (
@@ -84,7 +89,7 @@ export default function PesertaEvaluationPage() {
   const [submitting, setSubmitting] = useState(false);
   const [loadError, setLoadError] = useState<ErrorDetail | null>(null);
   const [submitError, setSubmitError] = useState<ErrorDetail | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [success, setSuccess] = useState<SuccessDetail | null>(null);
   const [forbidden, setForbidden] = useState(false);
   const [evaluation, setEvaluation] = useState<EvaluationMeResponse | null>(
     null,
@@ -196,7 +201,10 @@ export default function PesertaEvaluationPage() {
         setSubmitError(await parseErrorDetails(res, 'Gagal mengirim'));
         return;
       }
-      setSuccess('Evaluasi sudah dikirim.');
+      setSuccess({
+        title: 'Evaluasi tersimpan',
+        message: 'Data tersimpan. Perubahan tidak dapat dilakukan.',
+      });
       await loadEvaluation();
     } catch (e) {
       if (e instanceof ForbiddenError) {
@@ -225,13 +233,15 @@ export default function PesertaEvaluationPage() {
           />
         )}
         {forbidden && <Forbidden />}
-        {loading && <p>Memuat...</p>}
+        {loading && <p>Memuat data evaluasi…</p>}
         {!loading && !forbidden && loadError && (
-          <ErrorState
+          <MessageBanner
+            variant="error"
             title={loadError.title}
             message={loadError.message}
             details={loadError.details}
-            retry={load}
+            actionLabel="Coba lagi"
+            onAction={load}
           />
         )}
         {!loading && !forbidden && !loadError && !enrollmentId && (
@@ -241,25 +251,20 @@ export default function PesertaEvaluationPage() {
           />
         )}
         {!loading && !forbidden && !loadError && enrollmentId && (
-          <form onSubmit={onSubmit} style={{ marginTop: 16 }}>
-            {evaluation && (
-              <div
-                style={{
-                  border: '1px solid #c8e6c9',
-                  background: '#e8f5e9',
-                  color: '#1b5e20',
-                  padding: 12,
-                  borderRadius: 8,
-                  marginBottom: 12,
-                }}
-              >
-                Evaluasi sudah terkirim pada {evaluation.submittedAt}
-              </div>
-            )}
+          <form onSubmit={onSubmit} style={{ marginTop: 16 }} aria-busy={loading || submitting}>
+            {evaluation && !success ? (
+              <MessageBanner
+                variant="success"
+                title="Evaluasi sudah terkirim"
+                message={`Terkirim pada ${new Date(
+                  evaluation.submittedAt,
+                ).toLocaleString()}. Data bersifat read-only.`}
+              />
+            ) : null}
             {!canWrite || evaluation ? (
               <EmptyState
                 title="Mode read-only"
-                description="Evaluasi tidak dapat diubah pada status ini."
+                description="Evaluasi sudah terkirim atau event tidak sedang berlangsung."
               />
             ) : null}
             <label style={{ display: 'block', marginBottom: 8 }}>
@@ -273,21 +278,15 @@ export default function PesertaEvaluationPage() {
               />
             </label>
             {success && (
-              <div
-                style={{
-                  border: '1px solid #c8e6c9',
-                  background: '#e8f5e9',
-                  color: '#1b5e20',
-                  padding: 12,
-                  borderRadius: 8,
-                  marginBottom: 12,
-                }}
-              >
-                {success}
-              </div>
+              <MessageBanner
+                variant="success"
+                title={success.title}
+                message={success.message}
+              />
             )}
             {submitError && (
-              <ErrorState
+              <MessageBanner
+                variant="error"
                 title={submitError.title}
                 message={submitError.message}
                 details={submitError.details}
@@ -295,9 +294,10 @@ export default function PesertaEvaluationPage() {
             )}
             <button
               type="submit"
-              disabled={!canWrite || submitting || !!evaluation}
+              aria-label="Kirim Evaluasi"
+              disabled={!canWrite || loading || submitting || !!evaluation}
             >
-              {submitting ? 'Mengirim...' : 'Kirim Evaluasi'}
+              {submitting ? 'Mengirim Evaluasi…' : 'Kirim Evaluasi'}
             </button>
             {evaluation || success ? (
               <div style={{ marginTop: 12 }}>
@@ -306,6 +306,7 @@ export default function PesertaEvaluationPage() {
                   onClick={() =>
                     router.push(`/events/${eventId}/peserta/dashboard`)
                   }
+                  aria-label="Kembali ke Dashboard Peserta"
                 >
                   Kembali ke Dashboard
                 </button>
