@@ -1,10 +1,14 @@
 'use client';
 
 export default function ErrorState({
+  title,
   message,
+  details,
   retry,
 }: {
+  title?: string;
   message: string;
+  details?: string[];
   retry?: () => void;
 }) {
   return (
@@ -17,8 +21,15 @@ export default function ErrorState({
         padding: 16,
       }}
     >
-      <div style={{ fontWeight: 600 }}>Terjadi kesalahan</div>
+      <div style={{ fontWeight: 600 }}>{title ?? 'Terjadi kesalahan'}</div>
       <div>{message}</div>
+      {details && details.length > 0 ? (
+        <ul style={{ marginTop: 8, paddingLeft: 18 }}>
+          {details.map((item, index) => (
+            <li key={`${item}-${index}`}>{item}</li>
+          ))}
+        </ul>
+      ) : null}
       {retry ? (
         <button
           onClick={retry}

@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEventContext } from '../../../EventContext';
 import RequireEventRole from '@/components/RequireEventRole';
 import EmptyState from '@/components/EmptyState';
@@ -24,41 +24,72 @@ type AssessmentScoreListResponseDto = {
   items: AssessmentScoreItemDto[];
 };
 
-const parseErrorMessage = async (res: Response): Promise<string> => {
+type ErrorDetail = {
+  title: string;
+  message: string;
+  details?: string[];
+};
+
+const parseErrorDetails = async (
+  res: Response,
+  title: string,
+): Promise<ErrorDetail> => {
   const contentType = res.headers.get('content-type') || '';
   if (contentType.includes('application/json')) {
     try {
-      const data = (await res.json()) as { message?: string | string[]; error?: string };
+      const data = (await res.json()) as {
+        message?: string | string[];
+        error?: string;
+        details?: string[] | Record<string, string[] | string>;
+      };
       if (Array.isArray(data.message)) {
-        return data.message.join(', ');
+        return {
+          title,
+          message: data.message.join(', '),
+          details: data.message,
+        };
       }
       if (typeof data.message === 'string') {
-        return data.message;
+        return {
+          title,
+          message: data.message,
+          details: Array.isArray(data.details)
+            ? data.details
+            : data.details && typeof data.details === 'object'
+            ? Object.entries(data.details).flatMap(([key, value]) =>
+                Array.isArray(value)
+                  ? value.map((item) => `${key}: ${item}`)
+                  : [`${key}: ${value}`],
+              )
+            : undefined,
+        };
       }
       if (typeof data.error === 'string') {
-        return data.error;
+        return { title, message: data.error };
       }
     } catch {
-      return `Gagal memproses respons (${res.status})`;
+      return { title, message: `Gagal memproses respons (${res.status})` };
     }
   }
   try {
     const text = await res.text();
-    if (text) return text;
+    if (text) return { title, message: text };
   } catch {
-    return `Gagal memproses respons (${res.status})`;
+    return { title, message: `Gagal memproses respons (${res.status})` };
   }
-  return `Request gagal (${res.status})`;
+  return { title, message: `Request gagal (${res.status})` };
 };
 
 export default function PelatihAssessmentPage() {
   const params = useParams();
   const participantId = params?.participantId as string | undefined;
+  const router = useRouter();
   const { eventId, eventStatus } = useEventContext();
   const [items, setItems] = useState<AssessmentScoreItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<ErrorDetail | null>(null);
+  const [submitError, setSubmitError] = useState<ErrorDetail | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState(false);
   const [type, setType] = useState<'akademik' | 'sikap'>('akademik');
@@ -89,13 +120,13 @@ export default function PelatihAssessmentPage() {
   const load = useCallback(async () => {
     if (!participantId) return;
     setLoading(true);
-    setError(null);
+    setLoadError(null);
     setSuccess(null);
     setForbidden(false);
     try {
       const res = await eventFetch(eventId, `/events/${eventId}/assessments`);
       if (!res.ok) {
-        setError(await parseErrorMessage(res));
+        setLoadError(await parseErrorDetails(res, 'Gagal memuat'));
         return;
       }
       const data = (await res.json()) as AssessmentScoreListResponseDto;
@@ -104,7 +135,10 @@ export default function PelatihAssessmentPage() {
       if (e instanceof ForbiddenError) {
         setForbidden(true);
       } else {
-        setError((e as Error).message);
+        setLoadError({
+          title: 'Gagal memuat',
+          message: (e as Error).message,
+        });
       }
     } finally {
       setLoading(false);
@@ -117,15 +151,18 @@ export default function PelatihAssessmentPage() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!participantId || !canWrite || currentAssessment) return;
+    if (submitting || !participantId || !canWrite || currentAssessment) return;
     setSubmitting(true);
-    setError(null);
+    setSubmitError(null);
     setSuccess(null);
     let payload: Record<string, unknown>;
     try {
       payload = JSON.parse(payloadText) as Record<string, unknown>;
     } catch {
-      setError('Format JSON tidak valid.');
+      setSubmitError({
+        title: 'Format tidak valid',
+        message: 'Format JSON tidak valid.',
+      });
       setSubmitting(false);
       return;
     }
@@ -149,7 +186,7 @@ export default function PelatihAssessmentPage() {
         body: JSON.stringify(body),
       });
       if (!res.ok) {
-        setError(await parseErrorMessage(res));
+        setSubmitError(await parseErrorDetails(res, 'Gagal mengirim'));
         return;
       }
       setSuccess('Penilaian berhasil dikirim.');
@@ -158,7 +195,10 @@ export default function PelatihAssessmentPage() {
       if (e instanceof ForbiddenError) {
         setForbidden(true);
       } else {
-        setError((e as Error).message);
+        setSubmitError({
+          title: 'Gagal mengirim',
+          message: (e as Error).message,
+        });
       }
     } finally {
       setSubmitting(false);
@@ -180,12 +220,25 @@ export default function PelatihAssessmentPage() {
         )}
         {forbidden && <Forbidden />}
         {loading && <p>Memuat...</p>}
-        {!loading && !forbidden && error && <ErrorState message={error} retry={load} />}
-        {!loading && !forbidden && !error && !participantId && (
+        {!loading && !forbidden && loadError && (
+          <ErrorState
+            title={loadError.title}
+            message={loadError.message}
+            details={loadError.details}
+            retry={load}
+          />
+        )}
+        {!loading && !forbidden && !loadError && !participantId && (
           <EmptyState title="Peserta tidak ditemukan." />
         )}
-        {!loading && !forbidden && !error && participantId && (
+        {!loading && !forbidden && !loadError && participantId && (
           <form onSubmit={onSubmit} style={{ marginTop: 16 }}>
+            {!canWrite || currentAssessment ? (
+              <EmptyState
+                title="Mode read-only"
+                description="Penilaian tidak dapat diubah pada status ini."
+              />
+            ) : null}
             <label style={{ display: 'block', marginBottom: 8 }}>
               Tipe Penilaian
               <select
@@ -220,16 +273,40 @@ export default function PelatihAssessmentPage() {
                 readOnly={!canWrite || !!currentAssessment}
               />
             </label>
+            {success && (
+              <div
+                style={{
+                  border: '1px solid #c8e6c9',
+                  background: '#e8f5e9',
+                  color: '#1b5e20',
+                  padding: 12,
+                  borderRadius: 8,
+                  marginBottom: 12,
+                }}
+              >
+                {success}
+              </div>
+            )}
             {currentAssessment && (
-              <div style={{ color: '#2e7d32', marginBottom: 12 }}>
+              <div
+                style={{
+                  border: '1px solid #c8e6c9',
+                  background: '#e8f5e9',
+                  color: '#1b5e20',
+                  padding: 12,
+                  borderRadius: 8,
+                  marginBottom: 12,
+                }}
+              >
                 Penilaian sudah dikirim pada {currentAssessment.createdAt}
               </div>
             )}
-            {success && (
-              <div style={{ color: '#2e7d32', marginBottom: 12 }}>{success}</div>
-            )}
-            {error && (
-              <div style={{ color: '#b71c1c', marginBottom: 12 }}>{error}</div>
+            {submitError && (
+              <ErrorState
+                title={submitError.title}
+                message={submitError.message}
+                details={submitError.details}
+              />
             )}
             <button
               type="submit"
@@ -237,6 +314,18 @@ export default function PelatihAssessmentPage() {
             >
               {submitting ? 'Mengirim...' : 'Kirim Penilaian'}
             </button>
+            {currentAssessment || success ? (
+              <div style={{ marginTop: 12 }}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(`/events/${eventId}/pelatih/dashboard`)
+                  }
+                >
+                  Kembali ke Dashboard
+                </button>
+              </div>
+            ) : null}
           </form>
         )}
       </div>

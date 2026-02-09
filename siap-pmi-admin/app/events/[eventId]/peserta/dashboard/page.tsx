@@ -1,17 +1,52 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useEventContext } from '../../EventContext';
 import RequireEventRole from '@/components/RequireEventRole';
 import SummaryCard from '@/components/SummaryCard';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
+import Forbidden from '@/components/Forbidden';
 import { getSupabaseClient } from '@/lib/supabaseClient';
+import { eventFetch, ForbiddenError } from '@/lib/eventApi';
 
 type EnrollmentItem = {
   id: string;
   status: string;
   review_status: string;
   registered_at: string;
+};
+
+type EvaluationMeResponse = {
+  id: string;
+  submittedAt: string;
+};
+
+const parseErrorMessage = async (res: Response): Promise<string> => {
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    try {
+      const data = (await res.json()) as { message?: string | string[]; error?: string };
+      if (Array.isArray(data.message)) {
+        return data.message.join(', ');
+      }
+      if (typeof data.message === 'string') {
+        return data.message;
+      }
+      if (typeof data.error === 'string') {
+        return data.error;
+      }
+    } catch {
+      return `Gagal memproses respons (${res.status})`;
+    }
+  }
+  try {
+    const text = await res.text();
+    if (text) return text;
+  } catch {
+    return `Gagal memproses respons (${res.status})`;
+  }
+  return `Request gagal (${res.status})`;
 };
 
 const getStatusMessage = (status: string) => {
@@ -27,8 +62,24 @@ const getStatusMessage = (status: string) => {
 export default function PesertaDashboardPage() {
   const { eventId, eventStatus } = useEventContext();
   const [enrollment, setEnrollment] = useState<EnrollmentItem | null>(null);
+  const [evaluation, setEvaluation] = useState<EvaluationMeResponse | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [forbidden, setForbidden] = useState(false);
+
+  const canWrite = useMemo(
+    () => eventStatus === 'published' || eventStatus === 'ongoing',
+    [eventStatus],
+  );
+
+  const disabledReason = useMemo(() => {
+    if (eventStatus === 'draft') return 'Event belum dimulai.';
+    if (eventStatus === 'completed') return 'Event sudah selesai.';
+    if (eventStatus === 'cancelled') return 'Event dibatalkan.';
+    return '';
+  }, [eventStatus]);
 
   useEffect(() => {
     if (!eventId) return;
@@ -36,6 +87,7 @@ export default function PesertaDashboardPage() {
     const load = async () => {
       setLoading(true);
       setError(null);
+      setForbidden(false);
       try {
         const sb = getSupabaseClient();
         if (!sb) {
@@ -64,9 +116,29 @@ export default function PesertaDashboardPage() {
         } else {
           setEnrollment(null);
         }
+        if (data && data.length > 0) {
+          const res = await eventFetch(
+            eventId,
+            `/events/${eventId}/evaluations/me`,
+          );
+          if (res.status === 404) {
+            setEvaluation(null);
+          } else if (!res.ok) {
+            setError(await parseErrorMessage(res));
+          } else {
+            const evaluationData = (await res.json()) as EvaluationMeResponse;
+            setEvaluation(evaluationData);
+          }
+        } else {
+          setEvaluation(null);
+        }
       } catch (e) {
         if (!active) return;
-        setError((e as Error).message);
+        if (e instanceof ForbiddenError) {
+          setForbidden(true);
+        } else {
+          setError((e as Error).message);
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -86,9 +158,10 @@ export default function PesertaDashboardPage() {
         </div>
 
         {loading ? <div>Memuat status peserta…</div> : null}
+        {forbidden ? <Forbidden /> : null}
         {error ? <ErrorState message={error} /> : null}
 
-        {!loading && !error ? (
+        {!loading && !error && !forbidden ? (
           <>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <SummaryCard title="Event" value={eventId} />
@@ -101,6 +174,33 @@ export default function PesertaDashboardPage() {
                 title="Review Enrollment"
                 value={enrollment ? enrollment.review_status : '-'}
               />
+            </div>
+
+            <div style={{ display: 'grid', gap: 8 }}>
+              <h3>Evaluasi Peserta</h3>
+              {evaluation ? (
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <div style={{ color: '#2e7d32' }}>Sudah terkirim</div>
+                  <Link href={`/events/${eventId}/peserta/evaluation`}>
+                    Lihat evaluasi (read-only)
+                  </Link>
+                </div>
+              ) : canWrite ? (
+                <Link href={`/events/${eventId}/peserta/evaluation`}>
+                  Isi Evaluasi
+                </Link>
+              ) : (
+                <div style={{ display: 'grid', gap: 4 }}>
+                  <button type="button" disabled>
+                    Isi Evaluasi
+                  </button>
+                  {disabledReason ? (
+                    <div style={{ color: '#666', fontSize: 12 }}>
+                      {disabledReason}
+                    </div>
+                  ) : null}
+                </div>
+              )}
             </div>
 
             {enrollment ? (

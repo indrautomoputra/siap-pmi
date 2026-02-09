@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useEventContext } from '../../EventContext';
 import RequireEventRole from '@/components/RequireEventRole';
 import EmptyState from '@/components/EmptyState';
@@ -20,38 +21,69 @@ type EnrollmentRow = {
   id: string;
 };
 
-const parseErrorMessage = async (res: Response): Promise<string> => {
+type ErrorDetail = {
+  title: string;
+  message: string;
+  details?: string[];
+};
+
+const parseErrorDetails = async (
+  res: Response,
+  title: string,
+): Promise<ErrorDetail> => {
   const contentType = res.headers.get('content-type') || '';
   if (contentType.includes('application/json')) {
     try {
-      const data = (await res.json()) as { message?: string | string[]; error?: string };
+      const data = (await res.json()) as {
+        message?: string | string[];
+        error?: string;
+        details?: string[] | Record<string, string[] | string>;
+      };
       if (Array.isArray(data.message)) {
-        return data.message.join(', ');
+        return {
+          title,
+          message: data.message.join(', '),
+          details: data.message,
+        };
       }
       if (typeof data.message === 'string') {
-        return data.message;
+        return {
+          title,
+          message: data.message,
+          details: Array.isArray(data.details)
+            ? data.details
+            : data.details && typeof data.details === 'object'
+            ? Object.entries(data.details).flatMap(([key, value]) =>
+                Array.isArray(value)
+                  ? value.map((item) => `${key}: ${item}`)
+                  : [`${key}: ${value}`],
+              )
+            : undefined,
+        };
       }
       if (typeof data.error === 'string') {
-        return data.error;
+        return { title, message: data.error };
       }
     } catch {
-      return `Gagal memproses respons (${res.status})`;
+      return { title, message: `Gagal memproses respons (${res.status})` };
     }
   }
   try {
     const text = await res.text();
-    if (text) return text;
+    if (text) return { title, message: text };
   } catch {
-    return `Gagal memproses respons (${res.status})`;
+    return { title, message: `Gagal memproses respons (${res.status})` };
   }
-  return `Request gagal (${res.status})`;
+  return { title, message: `Request gagal (${res.status})` };
 };
 
 export default function PesertaEvaluationPage() {
+  const router = useRouter();
   const { eventId, eventStatus } = useEventContext();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<ErrorDetail | null>(null);
+  const [submitError, setSubmitError] = useState<ErrorDetail | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState(false);
   const [evaluation, setEvaluation] = useState<EvaluationMeResponse | null>(
@@ -68,13 +100,16 @@ export default function PesertaEvaluationPage() {
   const loadEnrollment = useCallback(async (): Promise<string | null> => {
     const sb = getSupabaseClient();
     if (!sb) {
-      setError('Supabase client belum terkonfigurasi.');
+      setLoadError({
+        title: 'Gagal memuat',
+        message: 'Supabase client belum terkonfigurasi.',
+      });
       return null;
     }
     const { data: userData } = await sb.auth.getUser();
     const userId = userData.user?.id;
     if (!userId) {
-      setError('User tidak ditemukan.');
+      setLoadError({ title: 'Gagal memuat', message: 'User tidak ditemukan.' });
       return null;
     }
     const { data, error: sbError } = await sb
@@ -84,7 +119,7 @@ export default function PesertaEvaluationPage() {
       .eq('user_id', userId)
       .limit(1);
     if (sbError) {
-      setError(sbError.message);
+      setLoadError({ title: 'Gagal memuat', message: sbError.message });
       return null;
     }
     return (data?.[0] as EnrollmentRow | undefined)?.id ?? null;
@@ -97,7 +132,7 @@ export default function PesertaEvaluationPage() {
       return;
     }
     if (!res.ok) {
-      setError(await parseErrorMessage(res));
+      setLoadError(await parseErrorDetails(res, 'Gagal memuat'));
       return;
     }
     const data = (await res.json()) as EvaluationMeResponse;
@@ -107,7 +142,7 @@ export default function PesertaEvaluationPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setLoadError(null);
     setSuccess(null);
     setForbidden(false);
     try {
@@ -120,7 +155,10 @@ export default function PesertaEvaluationPage() {
       if (e instanceof ForbiddenError) {
         setForbidden(true);
       } else {
-        setError((e as Error).message);
+        setLoadError({
+          title: 'Gagal memuat',
+          message: (e as Error).message,
+        });
       }
     } finally {
       setLoading(false);
@@ -133,15 +171,18 @@ export default function PesertaEvaluationPage() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!enrollmentId || !canWrite || evaluation) return;
+    if (submitting || !enrollmentId || !canWrite || evaluation) return;
     setSubmitting(true);
-    setError(null);
+    setSubmitError(null);
     setSuccess(null);
     let responses: Record<string, unknown>;
     try {
       responses = JSON.parse(responsesText) as Record<string, unknown>;
     } catch {
-      setError('Format JSON tidak valid.');
+      setSubmitError({
+        title: 'Format tidak valid',
+        message: 'Format JSON tidak valid.',
+      });
       setSubmitting(false);
       return;
     }
@@ -152,7 +193,7 @@ export default function PesertaEvaluationPage() {
         body: JSON.stringify({ enrollmentId, responses }),
       });
       if (!res.ok) {
-        setError(await parseErrorMessage(res));
+        setSubmitError(await parseErrorDetails(res, 'Gagal mengirim'));
         return;
       }
       setSuccess('Evaluasi sudah dikirim.');
@@ -161,7 +202,10 @@ export default function PesertaEvaluationPage() {
       if (e instanceof ForbiddenError) {
         setForbidden(true);
       } else {
-        setError((e as Error).message);
+        setSubmitError({
+          title: 'Gagal mengirim',
+          message: (e as Error).message,
+        });
       }
     } finally {
       setSubmitting(false);
@@ -182,15 +226,42 @@ export default function PesertaEvaluationPage() {
         )}
         {forbidden && <Forbidden />}
         {loading && <p>Memuat...</p>}
-        {!loading && !forbidden && error && <ErrorState message={error} retry={load} />}
-        {!loading && !forbidden && !error && !enrollmentId && (
+        {!loading && !forbidden && loadError && (
+          <ErrorState
+            title={loadError.title}
+            message={loadError.message}
+            details={loadError.details}
+            retry={load}
+          />
+        )}
+        {!loading && !forbidden && !loadError && !enrollmentId && (
           <EmptyState
             title="Enrollment tidak ditemukan."
             description="Pastikan Anda terdaftar sebagai peserta pada event ini."
           />
         )}
-        {!loading && !forbidden && !error && enrollmentId && (
+        {!loading && !forbidden && !loadError && enrollmentId && (
           <form onSubmit={onSubmit} style={{ marginTop: 16 }}>
+            {evaluation && (
+              <div
+                style={{
+                  border: '1px solid #c8e6c9',
+                  background: '#e8f5e9',
+                  color: '#1b5e20',
+                  padding: 12,
+                  borderRadius: 8,
+                  marginBottom: 12,
+                }}
+              >
+                Evaluasi sudah terkirim pada {evaluation.submittedAt}
+              </div>
+            )}
+            {!canWrite || evaluation ? (
+              <EmptyState
+                title="Mode read-only"
+                description="Evaluasi tidak dapat diubah pada status ini."
+              />
+            ) : null}
             <label style={{ display: 'block', marginBottom: 8 }}>
               Responses (JSON)
               <textarea
@@ -201,16 +272,26 @@ export default function PesertaEvaluationPage() {
                 readOnly={!canWrite || !!evaluation}
               />
             </label>
-            {evaluation && (
-              <div style={{ color: '#2e7d32', marginBottom: 12 }}>
-                Evaluasi sudah dikirim pada {evaluation.submittedAt}
+            {success && (
+              <div
+                style={{
+                  border: '1px solid #c8e6c9',
+                  background: '#e8f5e9',
+                  color: '#1b5e20',
+                  padding: 12,
+                  borderRadius: 8,
+                  marginBottom: 12,
+                }}
+              >
+                {success}
               </div>
             )}
-            {success && (
-              <div style={{ color: '#2e7d32', marginBottom: 12 }}>{success}</div>
-            )}
-            {error && (
-              <div style={{ color: '#b71c1c', marginBottom: 12 }}>{error}</div>
+            {submitError && (
+              <ErrorState
+                title={submitError.title}
+                message={submitError.message}
+                details={submitError.details}
+              />
             )}
             <button
               type="submit"
@@ -218,6 +299,18 @@ export default function PesertaEvaluationPage() {
             >
               {submitting ? 'Mengirim...' : 'Kirim Evaluasi'}
             </button>
+            {evaluation || success ? (
+              <div style={{ marginTop: 12 }}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(`/events/${eventId}/peserta/dashboard`)
+                  }
+                >
+                  Kembali ke Dashboard
+                </button>
+              </div>
+            ) : null}
           </form>
         )}
       </div>

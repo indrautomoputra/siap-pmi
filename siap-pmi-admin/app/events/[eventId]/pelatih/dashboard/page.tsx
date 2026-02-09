@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useEventContext } from '../../EventContext';
 import RequireEventRole from '@/components/RequireEventRole';
 import SummaryCard from '@/components/SummaryCard';
@@ -39,6 +40,14 @@ const getStatusMessage = (status: string) => {
   if (status === 'completed')
     return 'Event selesai. Menampilkan rekap akhir.';
   return 'Event dibatalkan.';
+};
+
+const getDisabledReason = (status: string) => {
+  if (status === 'draft') return 'Event belum dimulai.';
+  if (status === 'published') return 'Event belum ongoing.';
+  if (status === 'completed') return 'Event sudah selesai.';
+  if (status === 'cancelled') return 'Event dibatalkan.';
+  return 'Event belum ongoing.';
 };
 
 export default function PelatihDashboardPage() {
@@ -132,6 +141,7 @@ export default function PelatihDashboardPage() {
                       <th>Status Penilaian</th>
                       <th>Waktu Penilaian Terakhir</th>
                       <th>Status Evaluasi</th>
+                      <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -145,6 +155,24 @@ export default function PelatihDashboardPage() {
                             : '-'}
                         </td>
                         <td>{item.hasEvaluation ? 'Sudah mengisi' : 'Belum mengisi'}</td>
+                        <td>
+                          {eventStatus === 'ongoing' ? (
+                            <Link
+                              href={`/events/${eventId}/pelatih/assessments/${item.enrollmentId}`}
+                            >
+                              Nilai/Update Penilaian
+                            </Link>
+                          ) : (
+                            <div style={{ display: 'grid', gap: 4 }}>
+                              <button type="button" disabled>
+                                Nilai/Update Penilaian
+                              </button>
+                              <div style={{ color: '#666', fontSize: 12 }}>
+                                {getDisabledReason(eventStatus)}
+                              </div>
+                            </div>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
