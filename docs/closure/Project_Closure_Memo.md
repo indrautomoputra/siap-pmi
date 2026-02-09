@@ -1,6 +1,8 @@
 PROJECT CLOSURE MEMO
 SIAP PMI – PENUTUPAN PROYEK RESMI
 
+Catatan Arsip (teks kecil): ARCHIVED — DO NOT MODIFY
+
 Pernyataan Resmi
 Dengan ini dinyatakan bahwa proyek pengembangan dan adopsi sistem SIAP PMI telah SELESAI. Sistem telah resmi digunakan secara internal pada lingkup satu provinsi dan dinyatakan stabil sesuai evaluasi pasca GO-LIVE.
 

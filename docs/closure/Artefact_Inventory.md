@@ -1,6 +1,8 @@
 FINAL ARTEFACT INVENTORY
 SIAP PMI – PENUTUPAN PROYEK
 
+Status Arsip: Archived
+
 Instruksi
 - Isi daftar artefak final berikut untuk kebutuhan audit.
 - Gunakan tanggal versi terakhir dokumen atau tanggal terakhir pembaruan.

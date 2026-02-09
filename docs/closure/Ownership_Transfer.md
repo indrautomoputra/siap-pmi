@@ -1,6 +1,8 @@
 OWNERSHIP & RESPONSIBILITY TRANSFER
 SIAP PMI – PENUTUPAN PROYEK
 
+Catatan Arsip (teks kecil): ARCHIVED — DO NOT MODIFY
+
 Penegasan Serah-Terima
 Operasional sistem SIAP PMI secara resmi diserahkan kepada PIC operasional yang ditetapkan. Penugasan ini berlaku pada lingkup satu provinsi sesuai status INTERNAL GO-LIVE.
 
