@@ -20,3 +20,9 @@
 ## Catatan
 - Setiap perubahan bugfix harus menambahkan entry baru di folder dry-run dengan tanggal eksekusi.
 - Bukti disusun rapi agar siap untuk SOP dan audit internal.
+
+## Frontend
+- Smoke test write flows: /docs/frontend/Smoke_Test_Write_Flows.md
+- UX polish & A11Y: /docs/frontend/UX_Polish_A11Y.md
+- Frontend readiness note: /docs/frontend/Frontend_Readiness_Note.md
+- Human smoke evidence plan: /docs/frontend/Human_Smoke_Evidence_Plan.md
