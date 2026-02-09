@@ -1,5 +1,50 @@
-import Link from "next/link";
-import { EventContextProvider } from "./EventContext";
+'use client';
+
+import Link from 'next/link';
+import { EventContextProvider, useEventContext } from './EventContext';
+
+function EventNav({ eventId }: { eventId: string }) {
+  const { eventStatus } = useEventContext();
+  const isDraft = eventStatus === 'draft';
+  const items = [
+    { key: 'panitia', label: 'Panitia' },
+    { key: 'pelatih', label: 'Pelatih' },
+    { key: 'observer', label: 'Observer' },
+    { key: 'peserta', label: 'Peserta' },
+  ];
+
+  return (
+    <section
+      style={{
+        borderBottom: '1px solid #eee',
+        padding: 12,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        flexWrap: 'wrap',
+      }}
+    >
+      <strong>Event: {eventId}</strong>
+      <span>Status: {eventStatus}</span>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        {items.map((item) =>
+          isDraft ? (
+            <span key={item.key} style={{ opacity: 0.5 }}>
+              {item.label}
+            </span>
+          ) : (
+            <Link key={item.key} href={`/events/${eventId}/${item.key}/dashboard`}>
+              {item.label}
+            </Link>
+          ),
+        )}
+      </div>
+      {isDraft ? (
+        <span style={{ color: '#b45309' }}>Event belum dimulai</span>
+      ) : null}
+    </section>
+  );
+}
 
 export default function EventLayout({
   children,
@@ -11,13 +56,7 @@ export default function EventLayout({
   const eventId = params.eventId;
   return (
     <EventContextProvider eventId={eventId}>
-      <section style={{ borderBottom: "1px solid #eee", padding: 12, display: "flex", gap: 12 }}>
-        <strong>Event: {eventId}</strong>
-        <Link href={`/events/${eventId}/panitia/dashboard`}>Panitia</Link>
-        <Link href={`/events/${eventId}/pelatih/dashboard`}>Pelatih</Link>
-        <Link href={`/events/${eventId}/observer/dashboard`}>Observer</Link>
-        <Link href={`/events/${eventId}/peserta/dashboard`}>Peserta</Link>
-      </section>
+      <EventNav eventId={eventId} />
       <div>{children}</div>
     </EventContextProvider>
   );
