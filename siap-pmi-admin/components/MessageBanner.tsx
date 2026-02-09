@@ -1,10 +1,10 @@
 'use client';
 
-type MessageVariant = 'error' | 'success';
+type MessageVariant = 'error' | 'success' | 'info';
 
 type MessageBannerProps = {
   variant: MessageVariant;
-  title: string;
+  title?: string;
   message: string;
   details?: string[];
   actionLabel?: string;
@@ -24,6 +24,11 @@ const stylesByVariant: Record<
     border: '1px solid #c8e6c9',
     background: '#e8f5e9',
     color: '#1b5e20',
+  },
+  info: {
+    border: '1px solid #cce5ff',
+    background: '#e7f1ff',
+    color: '#004085',
   },
 };
 
@@ -49,7 +54,9 @@ export default function MessageBanner({
         marginBottom: 12,
       }}
     >
-      <div style={{ fontWeight: 600, marginBottom: 4 }}>{title}</div>
+      {title ? (
+        <div style={{ fontWeight: 600, marginBottom: 4 }}>{title}</div>
+      ) : null}
       <div>{message}</div>
       {details && details.length > 0 ? (
         <ul style={{ marginTop: 8, paddingLeft: 18 }}>
