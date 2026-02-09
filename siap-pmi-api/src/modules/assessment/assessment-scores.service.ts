@@ -5,7 +5,11 @@ import { SupabaseProvider } from '../../infrastructure/supabase/supabase.module'
 import type { CurrentUser } from '../../infrastructure/auth/auth.service';
 import type { CurrentUserContext } from '../../infrastructure/auth/current-user';
 import type { AssessmentKind } from './assessment.types';
-import { EnrollmentNotFound } from '../enrollments/enrollments.errors';
+import {
+  EnrollmentAccessDenied,
+  EnrollmentNotFound,
+} from '../enrollments/enrollments.errors';
+import { PermissionDeniedForEvent } from '../event-roles/event-roles.errors';
 import {
   AssessmentScoreDetailResponseDto,
   AssessmentScoreItemDto,
@@ -90,7 +94,11 @@ export class AssessmentScoresService {
     dto: CreateAssessmentScoreRequestDto,
   ): Promise<{ assessmentId: string }> {
     if (dto.event_id && dto.event_id !== eventId) {
-      throw new Error('event_id tidak sesuai dengan event pada path');
+      throw new PermissionDeniedForEvent(
+        this.getUserId(currentUser),
+        eventId,
+        'EVENT_CONTEXT_MISMATCH',
+      );
     }
     const userId = this.getUserId(currentUser);
     const client = this.supabaseProvider.getClient();
@@ -102,13 +110,17 @@ export class AssessmentScoresService {
       throw new EnrollmentNotFound(dto.assesseeEnrollmentId);
     }
     if (enrollment.event_id !== eventId) {
-      throw new Error('Assessee tidak terdaftar pada event ini');
+      throw new EnrollmentAccessDenied(dto.assesseeEnrollmentId, userId);
     }
     const instrument = dto.instrumentId
       ? await this.fetchInstrumentById(client, dto.instrumentId)
       : await this.fetchInstrumentByEventAndKind(client, eventId, dto.type);
     if (!instrument || instrument.event_id !== eventId) {
-      throw new Error('Instrumen penilaian tidak ditemukan');
+      throw new PermissionDeniedForEvent(
+        userId,
+        eventId,
+        'ASSESSMENT_INSTRUMENT_EVENT_MISMATCH',
+      );
     }
     if (dto.instrumentId && instrument.kind !== dto.type) {
       throw new Error('Type penilaian tidak sesuai dengan instrumen');
