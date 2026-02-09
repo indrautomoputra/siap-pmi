@@ -1,13 +1,16 @@
 # Frontend Change Freeze – SIAP PMI
 
-Perubahan yang diizinkan:
-- Bugfix UI minor melalui prosedur change control yang berlaku.
-- Perbaikan teks/label yang tidak mengubah alur bisnis.
+## Pernyataan Change Freeze
+Mulai tanggal efektif go-live internal, seluruh perubahan pada frontend berada dalam status change freeze dan hanya boleh dilakukan melalui mekanisme change control.
 
-Perubahan yang dilarang:
-- Penambahan fitur baru.
-- Perubahan alur bisnis atau logika domain.
-- Perubahan integrasi API tanpa persetujuan change control.
+## Perubahan yang Diizinkan
+- Bugfix UI minor.
+- Copy/label correction yang tidak mengubah alur bisnis.
 
-Rujukan:
-- Ikuti kebijakan Change Control yang berlaku di dokumen governance.
+## Perubahan yang Dilarang
+- Fitur baru.
+- Perubahan alur bisnis.
+- Bypass role/event atau pelanggaran event scoping.
+
+## Rujukan Governance Backend
+- Mengacu pada kebijakan Change Control di dokumen governance backend.

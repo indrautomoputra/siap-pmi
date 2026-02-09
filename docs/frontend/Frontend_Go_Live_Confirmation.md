@@ -1,20 +1,26 @@
 # Frontend Go-Live Confirmation – SIAP PMI
 
-Pernyataan resmi: Frontend SIAP PMI dinyatakan aktif digunakan untuk kebutuhan internal.
+## Latar Belakang
+Frontend SIAP PMI telah selesai disiapkan secara teknis dan memasuki tahap formal penggunaan internal untuk mendukung operasional event berbasis peran.
 
-Ruang lingkup: Satu provinsi (single province) sesuai kebijakan operasional.
+## Pernyataan Resmi
+**Frontend SIAP PMI dinyatakan AKTIF DIGUNAKAN INTERNAL.**
 
-Flow yang tersedia:
+## Ruang Lingkup
+Penggunaan dibatasi pada satu provinsi (single province) sesuai kebijakan operasional.
+
+## Flow yang Tersedia
 - Read-only dashboard per role (Panitia, Pelatih, Observer, Peserta).
-- Limited write: Evaluasi Peserta.
-- Limited write: Penilaian Pelatih/Observer.
+- Evaluation Peserta (limited write).
+- Assessment Pelatih/Observer (limited write).
 
-Catatan keterbatasan:
+## Catatan Keterbatasan
 - Human smoke screenshots tercatat sebagai pending execution.
 
+## Tanggal Berlaku
 Tanggal efektif: ____________________
 
-Tanda tangan:
-Nama: ____________________
-Jabatan: ____________________
+## Tanda Tangan
+Nama: ____________________  
+Jabatan: ____________________  
 Tanggal: ____________________
