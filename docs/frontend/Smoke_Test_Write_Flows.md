@@ -53,6 +53,7 @@ Dokumen ini memuat skenario minimum untuk memverifikasi alur write yang sudah ad
 **Verifikasi**
 - UI: Forbidden tampil konsisten.
 - Response: API menolak akses (403) saat mencoba akses pelatih.
+- Event scoping: request tetap memakai header x-event-id dan tidak bisa lintas event.
 
 ## 4) Event Completed – Read-Only
 **Langkah**
@@ -66,4 +67,5 @@ Dokumen ini memuat skenario minimum untuk memverifikasi alur write yang sudah ad
 
 **Verifikasi**
 - UI: alasan disabled tampil (mis. “Event sudah selesai.”).
-- Response: tidak ada request write yang berhasil.
+- Response: request write ditolak (4xx) atau tidak terkirim dari UI.
+- Event scoping: request tetap memakai header x-event-id dan tidak bisa lintas event.
