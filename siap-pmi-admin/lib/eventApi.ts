@@ -32,6 +32,12 @@ export async function eventFetch(
     },
     cache: 'no-store',
   });
+  if (res.status === 401) {
+    if (typeof window !== 'undefined') {
+      window.location.replace('/login');
+    }
+    throw new Error('Unauthorized');
+  }
   if (res.status === 403) {
     throw new ForbiddenError(`Forbidden ${path}`);
   }

@@ -5,8 +5,8 @@ import Forbidden from './Forbidden';
 import { useEventContext, EventRole } from '../app/events/[eventId]/EventContext';
 
 export function useRequireEventRole(allowed: EventRole[]) {
-  const { role } = useEventContext();
-  return !!role && allowed.includes(role);
+  const { role, loading } = useEventContext();
+  return { ok: !!role && allowed.includes(role), loading, role };
 }
 
 export default function RequireEventRole({
@@ -16,15 +16,16 @@ export default function RequireEventRole({
   allowed: EventRole[];
   children: React.ReactNode;
 }) {
-  const { role } = useEventContext();
+  const { role, loading, ok } = useRequireEventRole(allowed);
   const router = useRouter();
   useEffect(() => {
-    if (!role) {
+    if (!loading && !role) {
       router.replace('/events');
     }
-  }, [role, router]);
+  }, [role, router, loading]);
+  if (loading) return <div style={{ padding: 16 }}>Memuat…</div>;
   if (!role) return null;
-  if (!allowed.includes(role)) return <Forbidden message="Role tidak sesuai untuk halaman ini." />;
+  if (!ok) return <Forbidden message="Role tidak sesuai untuk halaman ini." />;
   return <>{children}</>;
 }
 

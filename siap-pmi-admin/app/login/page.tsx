@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSupabase, getAccessToken } from '../../lib/supabase';
+import { getSupabaseClient } from '../../lib/supabaseClient';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const sb = getSupabase();
+    const sb = getSupabaseClient();
     if (!sb) {
       setError('Konfigurasi Supabase belum tersedia');
       setLoading(false);
@@ -29,11 +29,12 @@ export default function LoginPage() {
       setLoading(false);
       return;
     }
-    const token = await getAccessToken();
-    if (!token) {
-      setError('Tidak dapat mengambil JWT dari Supabase');
-      setLoading(false);
-      return;
+    const { data } = await sb.auth.getSession();
+    const token = data.session?.access_token ?? null;
+    if (token) {
+      try {
+        window.localStorage.setItem('siap_jwt', token);
+      } catch {}
     }
     router.replace('/'); // redirect to dashboard root
   };
