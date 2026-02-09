@@ -1,6 +1,12 @@
 OWNERSHIP & RESPONSIBILITY TRANSFER
 SIAP PMI – PENUTUPAN PROYEK
 
+Metadata Dokumen
+- Judul: Ownership & Responsibility Transfer
+- Versi: 1.0
+- Nomor Arsip: ______________________
+- Tanggal Arsip: ______________________
+
 Catatan Arsip (teks kecil): ARCHIVED — DO NOT MODIFY
 
 Penegasan Serah-Terima
@@ -37,3 +43,5 @@ Tanda Tangan Digital (QR)
 Verification Note
 - Cara verifikasi: scan QR, baca payload informasi (dokumen, path, penandatangan, tanggal, scope, freeze), dan cocokkan dengan dokumen ini. Dapat dilakukan secara offline.
 - Pernyataan: QR merupakan representasi tanda tangan administratif untuk keperluan arsip dan audit, bukan fitur aplikasi.
+
+Catatan: housekeeping selesai.

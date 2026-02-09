@@ -1,6 +1,12 @@
 AUDIT TRAIL INDEX
 SIAP PMI – PENUTUPAN PROYEK
 
+Metadata Dokumen
+- Judul: Audit Trail Index
+- Versi: 1.0
+- Nomor Arsip: ______________________
+- Tanggal Arsip: ______________________
+
 Catatan Arsip (teks kecil): ARCHIVED — DO NOT MODIFY
 
 Tujuan
@@ -28,3 +34,5 @@ Cara Menelusuri Keputusan Penting
 3. Perubahan (bugfix): telusuri entri pada Freeze Compliance Checklist dan bukti change control.
 4. Kelulusan: telusuri notulen rapat kelulusan pada evidence pack; validasi bahwa sistem hanya mencatat keputusan rapat.
 5. Konsistensi Event-Based: periksa bahwa semua bukti berada dalam konteks event yang sesuai (header/rute/payload).
+
+Catatan: housekeeping selesai.

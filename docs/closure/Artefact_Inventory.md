@@ -1,6 +1,12 @@
 FINAL ARTEFACT INVENTORY
 SIAP PMI – PENUTUPAN PROYEK
 
+Metadata Dokumen
+- Judul: Final Artefact Inventory
+- Versi: 1.0
+- Nomor Arsip: ______________________
+- Tanggal Arsip: ______________________
+
 Status Arsip: Archived
 
 Instruksi
@@ -24,3 +30,5 @@ Tabel Inventaris
 | Post-Go – Post-Event Review Template | /docs/post-go/Post_Event_Review_Template.md |  |  |
 | Post-Go – Freeze Compliance Checklist | /docs/post-go/Freeze_Compliance_Checklist.md |  |  |
 | Post-Go – Stability Report Template | /docs/post-go/Stability_Report_Template.md |  |  |
+
+Catatan: housekeeping selesai.

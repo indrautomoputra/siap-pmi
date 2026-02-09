@@ -1,6 +1,12 @@
 PROJECT CLOSURE MEMO
 SIAP PMI – PENUTUPAN PROYEK RESMI
 
+Metadata Dokumen
+- Judul: Project Closure Memo
+- Versi: 1.0
+- Nomor Arsip: ______________________
+- Tanggal Arsip: ______________________
+
 Catatan Arsip (teks kecil): ARCHIVED — DO NOT MODIFY
 
 Pernyataan Resmi
@@ -40,3 +46,5 @@ Tanda Tangan Digital (QR)
 Verification Note
 - Cara verifikasi: scan QR, baca payload informasi (dokumen, path, penandatangan, tanggal, scope, freeze), dan cocokkan dengan dokumen ini. Dapat dilakukan secara offline.
 - Pernyataan: QR merupakan representasi tanda tangan administratif untuk keperluan arsip dan audit, bukan fitur aplikasi.
+
+Catatan: housekeeping selesai.
