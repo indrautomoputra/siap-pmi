@@ -1,10 +1,15 @@
 'use client';
 
 import MessageBanner from '@/components/MessageBanner';
-import { EventStatus } from '@/app/events/[eventId]/EventContext';
 
 type StatusBannerProps = {
-  status: EventStatus;
+  status:
+    | 'draft'
+    | 'published'
+    | 'ongoing'
+    | 'completed'
+    | 'cancelled'
+    | string;
 };
 
 export default function StatusBanner({ status }: StatusBannerProps) {
@@ -21,10 +26,19 @@ export default function StatusBanner({ status }: StatusBannerProps) {
     );
   }
 
+  if (status === 'completed' || status === 'cancelled') {
+    return (
+      <MessageBanner
+        variant="info"
+        message="Event sudah selesai, semua read-only"
+      />
+    );
+  }
+
   return (
     <MessageBanner
       variant="info"
-      message="Event sudah selesai, semua read-only"
+      message={`Status event: ${status}`}
     />
   );
 }

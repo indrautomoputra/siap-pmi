@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 type DashboardCardProps = {
   title: string;
-  description: string;
+  description?: string;
   href: string;
   disabledReason?: string;
 };
@@ -29,7 +29,9 @@ export default function DashboardCard({
     return (
       <div style={{ ...baseStyle, background: '#f8fafc', color: '#94a3b8' }}>
         <div style={{ fontWeight: 600, color: '#475569' }}>{title}</div>
-        <div style={{ fontSize: 13, color: '#64748b' }}>{description}</div>
+        {description ? (
+          <div style={{ fontSize: 13, color: '#64748b' }}>{description}</div>
+        ) : null}
         <div style={{ fontSize: 12 }}>{disabledReason}</div>
       </div>
     );
@@ -45,7 +47,9 @@ export default function DashboardCard({
       }}
     >
       <div style={{ fontWeight: 600, color: '#111827' }}>{title}</div>
-      <div style={{ fontSize: 13, color: '#4b5563' }}>{description}</div>
+      {description ? (
+        <div style={{ fontSize: 13, color: '#4b5563' }}>{description}</div>
+      ) : null}
       <div style={{ fontSize: 12, color: '#2563eb' }}>Buka</div>
     </Link>
   );
