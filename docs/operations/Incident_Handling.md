@@ -1,16 +1,19 @@
 # INCIDENT HANDLING QUICK GUIDE SIAP PMI
 
-## Ruang Lingkup
-Panduan ini mengatur penanganan insiden operasional pada Sistem SIAP PMI untuk penggunaan internal single province dengan mekanisme role per event.
+## Tujuan Panduan Insiden
+Panduan ini memastikan penanganan insiden dilakukan cepat, tertib, dan terdokumentasi pada Sistem SIAP PMI yang digunakan secara internal single province dengan penerapan role per event.
 
 ## Klasifikasi Insiden
-Insiden diklasifikasikan sebagai berikut: insiden UI untuk gangguan tampilan atau alur pengguna, insiden data untuk ketidaksesuaian data event, enrollment, assessment, evaluation, atau graduation, serta insiden auth untuk gangguan autentikasi dan otorisasi berbasis event.
+Klasifikasi insiden mencakup insiden UI atau frontend untuk gangguan tampilan dan alur pengguna, insiden auth atau akses untuk gangguan autentikasi dan otorisasi berbasis event, serta insiden data atau integritas untuk ketidaksesuaian data event, enrollment, assessment, evaluation, atau graduation.
 
 ## Langkah Respon Awal
-Operator melakukan verifikasi cepat terhadap event yang terdampak, mengidentifikasi ruang lingkup dampak, dan memastikan akses tetap mengikuti role per event. Selanjutnya dilakukan pencatatan awal insiden yang mencakup waktu kejadian, gejala, pengguna terdampak, dan event terkait.
+Operator melakukan verifikasi awal terhadap event yang terdampak, mengidentifikasi ruang lingkup dampak, dan memastikan akses tetap mengikuti role per event. Pencatatan awal dilakukan dengan memuat waktu kejadian, gejala, pengguna terdampak, serta event terkait.
 
-## Eskalasi dan Komunikasi
-Insiden berdampak tinggi wajib dieskalasikan kepada Governance Officer dan Pimpinan Unit Operasional. Komunikasi kepada pemangku kepentingan internal dilakukan secara ringkas, memuat status, dampak, dan estimasi waktu penanganan tanpa menyampaikan perubahan fitur.
+## Jalur Eskalasi
+Insiden yang berdampak tinggi atau mengganggu kelangsungan event wajib dieskalasikan kepada Governance Officer dan Pimpinan Unit Operasional sebagai jalur keputusan dan koordinasi internal.
 
-## Penutupan Insiden dan Pelaporan
-Insiden ditutup setelah layanan kembali stabil dan verifikasi dampak selesai. Laporan penutupan memuat akar masalah, tindakan korektif yang dilakukan, serta catatan pencegahan operasional, dan diarsipkan untuk kebutuhan audit internal.
+## Komunikasi Internal
+Komunikasi internal dilakukan secara ringkas dan faktual kepada pemangku kepentingan, memuat status insiden, dampak operasional, serta estimasi waktu penanganan tanpa menyampaikan rencana perubahan fitur.
+
+## Penutupan dan Pelaporan Insiden
+Insiden ditutup setelah layanan kembali stabil dan verifikasi dampak selesai. Pelaporan penutupan memuat akar masalah, tindakan korektif yang dilakukan, serta catatan pencegahan operasional, dan seluruh dokumen diarsipkan untuk kebutuhan audit internal.

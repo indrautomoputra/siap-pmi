@@ -1,35 +1,41 @@
 # OPERATIONAL RUNBOOK SIAP PMI
 
-## Ruang Lingkup Penggunaan Internal
-Dokumen ini menjadi panduan operasional harian untuk penggunaan internal Sistem SIAP PMI pada tingkat provinsi (single province). Seluruh proses berjalan berbasis event dengan penetapan role per event dan tidak berlaku sebagai panduan lintas provinsi.
+## Tujuan Runbook
+Dokumen ini menjadi pedoman kerja harian operasional SIAP PMI agar pelaksanaan event berjalan konsisten, tertib, dan sesuai ketentuan tata kelola internal tanpa perubahan fitur maupun logika domain.
+
+## Ruang Lingkup Penggunaan
+Runbook ini berlaku untuk penggunaan internal pada tingkat provinsi dengan cakupan single province. Seluruh proses operasional bersifat event-based dengan penetapan role per event dan tidak digunakan sebagai panduan lintas provinsi.
 
 ## Prasyarat Operasional
-Operasional hanya dapat dilakukan oleh pengguna internal yang memiliki akun aktif, event yang telah dibuat dan berada pada status aktif, serta role yang ditetapkan secara spesifik pada event tersebut. Seluruh akses dan tindakan operasional harus mengikuti ketentuan role per event yang berlaku.
+Operasional hanya dapat dilakukan oleh pengguna internal yang memiliki akun user aktif, event yang telah aktif, dan role yang ditetapkan secara spesifik pada event tersebut. Seluruh akses dan tindakan operasional wajib mengikuti pembatasan role per event.
 
-## Alur Harian Operasional
-### 1) Membuat dan Mempublikasikan Event
-Operator atau panitia yang berwenang membuat event sesuai kebutuhan operasional, melengkapi informasi inti, dan mempublikasikan event setelah validasi internal selesai.
+## Alur Operasional Harian Berbasis Event
+### 1) Pembuatan Event (Draft ke Published)
+Operator atau panitia yang berwenang membuat event pada status draft, melengkapi data inti yang diperlukan, melakukan verifikasi internal, lalu menerbitkan event ke status published setelah kesiapan dinyatakan lengkap.
 
-### 2) Enrollment
-Peserta melakukan enrollment ke event yang dipublikasikan, dan operator memastikan daftar peserta sesuai dengan ketentuan event serta tidak melampaui kapasitas yang ditetapkan.
+### 2) Enrollment Peserta
+Peserta melakukan enrollment pada event yang sudah published, sedangkan operator memastikan kesesuaian daftar peserta terhadap ketentuan event serta tidak melampaui kapasitas yang berlaku.
 
-### 3) Pelaksanaan (Ongoing)
-Selama event berlangsung, operator melakukan pemantauan status dan memastikan seluruh aktivitas berjalan sesuai jadwal, serta memastikan akses data tetap terikat pada event yang sedang berlangsung.
+### 3) Pelaksanaan Event (Ongoing)
+Selama event berlangsung, operator memantau status pelaksanaan, memastikan aktivitas sesuai jadwal, dan menjaga agar seluruh akses data tetap terikat pada event yang sedang berjalan.
 
-### 4) Pengisian Assessment dan Evaluation
-Pelatih atau observer mengisi assessment dan peserta mengisi evaluation sesuai jadwal yang ditetapkan. Pengisian dilakukan pada event yang sama dan tidak diperkenankan untuk event lain.
+### 4) Assessment Pelatih atau Observer
+Pelatih atau observer mengisi assessment sesuai peran pada event tersebut, dengan memastikan data hanya tercatat pada event yang relevan dan dalam periode pelaksanaan yang ditetapkan.
 
-### 5) Penetapan Kelulusan (Manual)
-Keputusan kelulusan dilakukan secara manual oleh pihak berwenang pada event terkait. Penilaian dan evaluasi tidak secara otomatis mempengaruhi kelulusan.
+### 5) Evaluation Peserta
+Peserta melakukan evaluation pada event yang sama sesuai jadwal, dan operator memastikan pengisian lengkap serta sesuai ketentuan akses.
 
-### 6) Penutupan Event
-Event ditutup setelah seluruh proses selesai, termasuk verifikasi data assessment, evaluasi, dan pencatatan kelulusan. Setelah penutupan, perubahan operasional dibatasi sesuai ketentuan change-freeze.
+### 6) Rapat dan Pencatatan Kelulusan
+Rapat penetapan kelulusan dilakukan secara internal dan keputusan dicatat secara manual pada event terkait. Hasil evaluation tidak secara otomatis menentukan kelulusan.
+
+### 7) Penutupan Event
+Event ditutup setelah verifikasi assessment, evaluation, dan pencatatan kelulusan selesai. Setelah penutupan, perubahan operasional dibatasi sesuai kebijakan change-freeze.
 
 ## Checklist Sebelum Event
-Operator memastikan event telah dipublikasikan, role per event sudah ditetapkan, akses peserta sesuai daftar, serta jadwal pelaksanaan telah dikomunikasikan kepada seluruh pihak terkait.
+Operator memastikan event telah published, role per event telah ditetapkan sesuai daftar kewenangan, akun pengguna yang relevan aktif, dan jadwal pelaksanaan telah dikomunikasikan kepada pihak terkait.
 
-## Checklist Sesudah Event
-Operator memastikan assessment dan evaluation telah lengkap, keputusan kelulusan telah dicatat, laporan read-only dapat diakses sesuai role, dan event telah ditutup secara resmi.
+## Checklist Setelah Event
+Operator memastikan assessment dan evaluation lengkap, keputusan kelulusan telah dicatat, laporan read-only tersedia sesuai role, dan event ditutup secara resmi.
 
 ## Larangan Operasional
-Dilarang melakukan perubahan data lintas event, menetapkan role sebagai role global, memindahkan enrollment antar event tanpa prosedur resmi, serta melakukan perubahan yang bertentangan dengan kebijakan change-freeze.
+Dilarang melakukan perubahan data lintas event, melakukan bypass role per event, memindahkan enrollment antar event tanpa prosedur resmi, serta melakukan perubahan yang bertentangan dengan kebijakan change-freeze.
