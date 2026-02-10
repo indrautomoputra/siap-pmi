@@ -1,10 +1,13 @@
 # SOP OPERASIONAL EVENT PELATIHAN PMI
 
-## Tujuan SOP
-SOP ini menjadi standar operasional tertulis untuk pelaksanaan event pelatihan PMI agar proses berjalan konsisten, tertib, dan dapat digunakan berulang pada seluruh event internal.
+## Pendahuluan dan Tujuan SOP
+Dokumen ini merupakan standar operasional tertulis untuk pelaksanaan event pelatihan PMI agar proses berjalan konsisten, tertib, dan dapat digunakan berulang pada seluruh event internal. Tujuan SOP adalah memastikan setiap event terlaksana sesuai tata kelola internal, terdokumentasi, dan siap diaudit.
 
 ## Ruang Lingkup
 SOP berlaku untuk penggunaan internal pada tingkat provinsi dengan cakupan single province, berbasis event, dan penetapan role per event.
+
+## Prinsip Dasar Sistem
+Pelaksanaan event dilakukan secara event-based dengan role yang ditetapkan per event, bukan role global. Sistem tidak menerapkan auto-grading, sehingga keputusan kelulusan ditetapkan manual melalui rapat kelulusan.
 
 ## Definisi Peran
 Admin Event bertanggung jawab atas penyiapan event, penetapan role per event, koordinasi operasional, dan arsip dokumen. Pelatih bertanggung jawab atas penyampaian materi dan assessment peserta. Observer bertanggung jawab memantau kepatuhan proses dan kualitas pelaksanaan. Peserta bertanggung jawab mengikuti kegiatan dan mengisi evaluation.
@@ -31,5 +34,13 @@ Rapat kelulusan dilakukan secara internal dengan dasar assessment dan kehadiran.
 ### Penutupan dan Arsip
 Admin Event memastikan seluruh data assessment, evaluation, dan kelulusan lengkap, lalu menutup event dan mengarsipkan dokumen operasional.
 
-## Prinsip Wajib
-Seluruh proses bersifat event-based dan role per event, tanpa auto-grading, serta keputusan kelulusan ditetapkan manual melalui rapat.
+## Ketentuan Penutupan Event
+Event dapat ditutup setelah seluruh assessment dan evaluation lengkap, keputusan kelulusan dicatat manual, serta dokumen operasional dan notulen rapat kelulusan tersedia untuk arsip internal.
+
+## Penegasan Change-Freeze
+Change-freeze berlaku penuh dan setiap perubahan hanya dapat dilakukan melalui mekanisme Change Control yang berlaku, tanpa perubahan kode atau fitur.
+
+## Blok Pengesahan
+Nama: ____________________  
+Jabatan: ____________________  
+Tanggal: ____________________

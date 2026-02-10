@@ -7,6 +7,7 @@ Lokasi: ____________________
 Admin Event: ____________________
 
 ## Checklist Pra-Event
+Checklist pra-event digunakan untuk memastikan seluruh persiapan administratif dan operasional selesai sebelum event dipublikasikan.
 | No | Langkah | PIC | Status | Keterangan |
 | --- | --- | --- | --- | --- |
 | 1 | Event dibuat dan status published | ____________________ | __________ | ____________________ |
@@ -15,7 +16,8 @@ Admin Event: ____________________
 | 4 | Daftar peserta tervalidasi dan kuota sesuai | ____________________ | __________ | ____________________ |
 | 5 | Sarana pelatihan siap digunakan | ____________________ | __________ | ____________________ |
 
-## Checklist Hari H
+## Checklist Hari Pelaksanaan
+Checklist hari pelaksanaan memastikan kegiatan berjalan sesuai jadwal dan seluruh aktivitas tercatat pada event terkait.
 | No | Langkah | PIC | Status | Keterangan |
 | --- | --- | --- | --- | --- |
 | 1 | Kehadiran peserta tercatat | ____________________ | __________ | ____________________ |
@@ -24,6 +26,7 @@ Admin Event: ____________________
 | 4 | Assessment mulai diisi sesuai sesi | ____________________ | __________ | ____________________ |
 
 ## Checklist Pasca-Event
+Checklist pasca-event memastikan assessment, evaluation, dan dokumen kelulusan lengkap sebelum event ditutup dan diarsipkan.
 | No | Langkah | PIC | Status | Keterangan |
 | --- | --- | --- | --- | --- |
 | 1 | Assessment lengkap dan tervalidasi | ____________________ | __________ | ____________________ |
