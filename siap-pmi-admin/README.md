@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SIAP PMI Admin (Frontend)
 
-## Getting Started
+SIAP PMI Admin adalah aplikasi internal berbasis Next.js untuk mengelola pelatihan PMI per event. UI berfokus pada operasional event, monitoring penilaian, evaluasi peserta, keputusan kelulusan manual, laporan, dan penutupan event.
 
-First, run the development server:
+## Scope
+
+- Single provinsi
+- Event-based, role per event
+
+## Prinsip Non-Negotiable
+
+- Tidak ada role global
+- Tidak ada auto-grading
+- Kelulusan diputuskan manual
+
+## Tech Stack
+
+- Next.js (App Router)
+- Supabase Auth (client) untuk resolusi role
+- Integrasi API NestJS
+
+## Menjalankan Secara Lokal
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Env yang dibutuhkan:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- NEXT_PUBLIC_API_BASE_URL
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Demo Path (alur klik)
 
-## Learn More
+1. Login
+2. Pilih Event
+3. Event Hub (role cards)
+4. Dashboard sesuai role
+5. Assessments (list & detail)
+6. Evaluation peserta
+7. Graduations (read-only)
+8. Reports (read-only)
+9. Closure (read-only)
 
-To learn more about Next.js, take a look at the following resources:
+## Screenshot Checklist
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Login
+- Pilih Event
+- Event Hub (role cards)
+- Dashboard Panitia
+- Dashboard Pelatih
+- Dashboard Observer
+- Dashboard Peserta
+- Assessments List (Pelatih)
+- Assessments Detail (Pelatih)
+- Evaluation Peserta
+- Graduations (read-only)
+- Reports (read-only)
+- Closure (read-only)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Smoke Test
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
