@@ -98,6 +98,14 @@ npx supabase start
 - Reports (read-only)
 - Closure (read-only)
 
+## Milestone: v1.0 Portfolio Ready
+
+- Tujuan: paket demo + evidence siap untuk reviewer internal.
+- Ruang lingkup: tanpa perubahan flow bisnis dan tanpa auto-grading.
+- Rekomendasi tagging (opsional, bila menggunakan git tag):
+  - git tag -a v1.0.0 -m "Milestone: v1.0 Portfolio Ready"
+  - git push origin v1.0.0
+
 ## Smoke Test
 
 ```bash
