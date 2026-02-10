@@ -82,6 +82,11 @@ npx supabase start
 8. Reports (read-only)
 9. Closure (read-only)
 
+## Snapshot Deploy (Showcase Mode)
+
+- URL demo: belum tersedia.
+- Demo lokal singkat: lihat docs/DEMO_GUIDE.md
+
 ## Screenshot Checklist
 
 - Login
@@ -98,13 +103,41 @@ npx supabase start
 - Reports (read-only)
 - Closure (read-only)
 
-## Milestone: v1.0 Portfolio Ready
+## Portfolio Story
 
-- Tujuan: paket demo + evidence siap untuk reviewer internal.
-- Ruang lingkup: tanpa perubahan flow bisnis dan tanpa auto-grading.
+### Masalah nyata PMI
+Operasional pelatihan berjalan per event, melibatkan banyak peran, dan menuntut etika penilaian yang jelas agar keputusan kelulusan tetap manusiawi dan akuntabel.
+
+### Prinsip desain
+- Event-scoped: semua data dan halaman dibatasi oleh event.
+- Role per event: akses ditentukan per peran yang ditugaskan.
+- RLS di data layer untuk menjaga batasan akses.
+- Keputusan kelulusan ditampilkan read-only, tanpa otomatisasi penilaian.
+
+### Solusi teknis
+- Frontend: Next.js (App Router).
+- Backend: NestJS.
+- Data/Auth: Supabase + RLS.
+
+### Bukti
+- Demo Guide: docs/DEMO_GUIDE.md
+- Screenshot Checklist: docs/evidence/SCREENSHOT_CHECKLIST.md
+
+### Trade-offs & batasan
+- Single provinsi.
+- Tanpa auto-grading.
+
+## Milestone: v1.0 – Portfolio Ready
+
+- Tanggal: 2026-02-10
+- Ruang lingkup: paket demo + evidence siap untuk reviewer internal, tanpa perubahan flow bisnis dan tanpa auto-grading.
 - Rekomendasi tagging (opsional, bila menggunakan git tag):
   - git tag -a v1.0.0 -m "Milestone: v1.0 Portfolio Ready"
   - git push origin v1.0.0
+
+## Badge
+
+- v1.0 – Portfolio Ready
 
 ## Smoke Test
 
