@@ -1,34 +1,19 @@
 # PANDUAN ONBOARDING PELATIH & OBSERVER SIAP PMI
 
-## Tujuan
-Panduan ini memastikan Pelatih dan Observer memahami peran, waktu pelaksanaan assessment, serta prinsip penilaian pada sistem internal single province berbasis event.
+## Pendahuluan
+Dokumen ini memberikan panduan operasional bagi Pelatih dan Observer agar pelaksanaan penilaian berjalan objektif, konsisten, dan terdokumentasi. Seluruh aktivitas dilaksanakan pada sistem internal satu provinsi berbasis event dengan role per event, tanpa perubahan fitur dan tanpa auto-grading.
 
-## Peran Pelatih vs Observer
-- Pelatih: menyampaikan materi, membina peserta, dan melakukan assessment sesuai kompetensi yang diajarkan.
-- Observer: memantau kepatuhan proses, kualitas pelaksanaan, dan konsistensi assessment sesuai pedoman.
-- Keduanya bekerja dalam role per event dan hanya pada event yang ditugaskan.
+## Perbedaan Peran Pelatih vs Observer
+Pelatih bertugas menyampaikan materi, membina peserta, dan melakukan assessment sesuai kompetensi serta instrumen yang disepakati pada event. Observer bertugas memantau kepatuhan proses dan kualitas pelaksanaan, memastikan penilaian dilakukan konsisten sesuai pedoman, serta mencatat temuan proses yang relevan. Keduanya bekerja dalam role per event dan hanya pada event yang ditugaskan.
 
 ## Kapan dan Bagaimana Melakukan Assessment
-- Kapan: mengikuti jadwal assessment pada event, setelah sesi materi yang relevan selesai.
-- Bagaimana:
-  - Pastikan peserta yang dinilai terdaftar pada event yang sama.
-  - Gunakan instrumen penilaian yang disepakati pada event.
-  - Isi assessment tepat waktu agar rapat kelulusan dapat dilakukan sesuai jadwal.
-  - Laporkan kendala ke Admin Event tanpa mengubah alur atau fitur sistem.
+Assessment dilakukan mengikuti jadwal pada event setelah sesi materi yang relevan selesai. Pelatih dan Observer memastikan peserta yang dinilai terdaftar pada event yang sama, menggunakan instrumen penilaian yang disepakati, dan mengisi assessment tepat waktu agar rapat kelulusan dapat berjalan sesuai jadwal. Setiap kendala dilaporkan kepada Admin Event tanpa mengubah alur atau fitur sistem.
 
-## Prinsip Penilaian (Bukan Auto-Grading)
-- Sistem tidak menentukan kelulusan otomatis.
-- Assessment menjadi bahan rapat kelulusan yang diputuskan secara manual.
-- Penilaian harus konsisten dengan kriteria yang ditetapkan pada event.
-- Hasil evaluation peserta tidak menjadi penentu kelulusan.
+## Prinsip Penilaian: Objektif, Berbasis Observasi, Bukan Auto-Grading
+Penilaian harus objektif dan berbasis observasi terhadap pelaksanaan serta kinerja peserta pada event. Sistem tidak menentukan kelulusan secara otomatis. Assessment menjadi salah satu bahan rapat kelulusan yang keputusan akhirnya ditetapkan manual. Penilaian dilakukan konsisten dengan kriteria yang ditetapkan pada event, sementara hasil evaluation peserta tidak menjadi penentu kelulusan.
 
-## Etika dan Objektivitas Penilaian
-- Menilai berdasarkan bukti pelaksanaan dan kinerja peserta pada event.
-- Menghindari konflik kepentingan dan intervensi di luar kriteria resmi.
-- Menjaga kerahasiaan hasil assessment sampai rapat kelulusan selesai.
-- Melaporkan ketidaksesuaian proses kepada Admin Event/Observer Koordinator.
+## Etika Penilaian dan Kerahasiaan
+Pelatih dan Observer wajib menilai berdasarkan bukti pelaksanaan serta kinerja peserta pada event, menghindari konflik kepentingan, dan tidak melakukan intervensi di luar kriteria resmi. Kerahasiaan hasil assessment dijaga sampai rapat kelulusan selesai, dan ketidaksesuaian proses dilaporkan kepada Admin Event atau koordinator yang ditetapkan.
 
-## Artefak yang Dihasilkan
-- Rekap assessment per peserta atau per sesi sesuai jadwal event.
-- Catatan pengamatan proses (khusus Observer) sebagai evidence operasional.
-- Konfirmasi kelengkapan assessment kepada Admin Event untuk kebutuhan rapat kelulusan.
+## Artefak yang Wajib Dihasilkan
+Setiap pelaksanaan assessment menghasilkan rekap penilaian per peserta atau per sesi sesuai jadwal event. Observer menuliskan catatan pengamatan proses sebagai evidence operasional. Pelatih dan Observer mengonfirmasi kelengkapan assessment kepada Admin Event untuk kebutuhan rapat kelulusan agar pencatatan keputusan berjalan lancar.
