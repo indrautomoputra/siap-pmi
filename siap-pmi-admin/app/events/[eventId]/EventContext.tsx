@@ -12,6 +12,7 @@ type Ctx = {
   eventStatus: EventStatus;
   eventName: string;
   role: EventRole | null;
+  roles: EventRole[];
   loading: boolean;
 };
 
@@ -33,6 +34,7 @@ export function EventContextProvider({
   children: React.ReactNode;
 }) {
   const [role, setRole] = useState<EventRole | null>(null);
+  const [roles, setRoles] = useState<EventRole[]>([]);
   const [status, setStatus] = useState<EventStatus>('ongoing');
   const [name, setName] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -57,29 +59,45 @@ export function EventContextProvider({
       try {
         const sb = getSupabaseClient();
         if (!sb) {
-          if (active) setRole(null);
+          if (active) {
+            setRole(null);
+            setRoles([]);
+          }
           return;
         }
         const { data: userData } = await sb.auth.getUser();
         const userId = userData.user?.id;
         if (!userId) {
-          if (active) setRole(null);
+          if (active) {
+            setRole(null);
+            setRoles([]);
+          }
           return;
         }
         const { data, error } = await sb
           .from('event_role_assignments')
           .select('role')
           .eq('event_id', eventId)
-          .eq('user_id', userId)
-          .limit(1);
+          .eq('user_id', userId);
         if (!error && data && data.length > 0) {
-          const r = data[0]?.role as EventRole | undefined;
-          if (active) setRole(r ?? null);
+          const mappedRoles = data
+            .map((item) => item?.role as EventRole | undefined)
+            .filter((item): item is EventRole => !!item);
+          if (active) {
+            setRoles(mappedRoles);
+            setRole(mappedRoles[0] ?? null);
+          }
         } else {
-          if (active) setRole(null);
+          if (active) {
+            setRole(null);
+            setRoles([]);
+          }
         }
       } catch {
-        if (active) setRole(null);
+        if (active) {
+          setRole(null);
+          setRoles([]);
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -91,8 +109,15 @@ export function EventContextProvider({
   }, [eventId]);
 
   const value = useMemo<Ctx>(
-    () => ({ eventId, eventStatus: status, eventName: name, role, loading }),
-    [eventId, status, name, role, loading],
+    () => ({
+      eventId,
+      eventStatus: status,
+      eventName: name,
+      role,
+      roles,
+      loading,
+    }),
+    [eventId, status, name, role, roles, loading],
   );
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;
 }
