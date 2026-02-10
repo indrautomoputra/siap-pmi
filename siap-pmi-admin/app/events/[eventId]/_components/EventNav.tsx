@@ -15,23 +15,23 @@ export default function EventNav() {
   const items: NavItem[] = role
     ? role === 'PANITIA'
       ? [
-          { key: 'dashboard', label: 'Dashboard', href: (id) => `/events/${id}/panitia/dashboard` },
+          { key: 'dashboard', label: 'Dashboard', href: (id) => `/events/${id}` },
           { key: 'enrollments', label: 'Enrollments', href: (id) => `/events/${id}/enrollments` },
           { key: 'graduations', label: 'Kelulusan', href: (id) => `/events/${id}/graduations` },
           { key: 'closure', label: 'Penutupan', href: (id) => `/events/${id}/closure` },
         ]
       : role === 'PELATIH'
       ? [
-          { key: 'dashboard', label: 'Dashboard', href: (id) => `/events/${id}/pelatih/dashboard` },
+          { key: 'dashboard', label: 'Dashboard', href: (id) => `/events/${id}` },
           { key: 'assessments', label: 'Assessment', href: (id) => `/events/${id}/pelatih/assessments` },
         ]
       : role === 'OBSERVER'
       ? [
-          { key: 'dashboard', label: 'Dashboard', href: (id) => `/events/${id}/observer/dashboard` },
+          { key: 'dashboard', label: 'Dashboard', href: (id) => `/events/${id}` },
           { key: 'assessments', label: 'Assessment', href: (id) => `/events/${id}/observer/assessments` },
         ]
       : [
-          { key: 'dashboard', label: 'Dashboard', href: (id) => `/events/${id}/peserta/dashboard` },
+          { key: 'dashboard', label: 'Dashboard', href: (id) => `/events/${id}` },
           { key: 'enrollments', label: 'Enrollment', href: (id) => `/events/${id}/enrollments` },
           { key: 'evaluation', label: 'Evaluation', href: (id) => `/events/${id}/peserta/evaluation` },
         ]

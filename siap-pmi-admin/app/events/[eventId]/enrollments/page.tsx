@@ -1,10 +1,11 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useEventContext } from '../EventContext';
-import RequireEventRole from '@/components/RequireEventRole';
 import ErrorState from '@/components/ErrorState';
 import EmptyState from '@/components/EmptyState';
 import DisabledActionBanner from '@/components/DisabledActionBanner';
+import MessageBanner from '@/components/MessageBanner';
+import PermissionDenied from '@/components/PermissionDenied';
 import { apiGet } from '../../../../lib/api';
 
 type Enrollment = {
@@ -16,7 +17,7 @@ type Enrollment = {
 };
 
 export default function EnrollmentsPage() {
-  const { eventId, eventStatus } = useEventContext();
+  const { eventId, eventStatus, role, loading: roleLoading } = useEventContext();
   const [items, setItems] = useState<Enrollment[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -51,63 +52,71 @@ export default function EnrollmentsPage() {
         en.review_status.toLowerCase().includes(q),
     );
   }, [items, query]);
+  if (roleLoading) {
+    return <div style={{ padding: 16 }}>Memuat…</div>;
+  }
+  if (role && role !== 'PANITIA' && role !== 'PESERTA') {
+    return <PermissionDenied reason="Role tidak sesuai untuk halaman ini." />;
+  }
   return (
-    <RequireEventRole allowed={['PANITIA', 'PESERTA']}>
-      <div style={{ padding: 16, display: 'grid', gap: 12 }}>
-        <div>
-          <h2>Enrollments – Daftar Peserta</h2>
-          <div style={{ color: '#666' }}>Halaman read-only sesuai role dan status event.</div>
-        </div>
-
-        {eventStatus !== 'ongoing' ? (
-          <DisabledActionBanner reason={`Status event ${eventStatus}. Enrollments hanya dapat dilihat.`} />
-        ) : null}
-
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari peserta, ID, status"
-            style={{ padding: 8, minWidth: 240 }}
-          />
-        </div>
-
-        {loading ? <div>Memuat daftar peserta…</div> : null}
-        {error ? <ErrorState message={error} /> : null}
-
-        {!loading && !error ? (
-          filteredItems.length === 0 ? (
-            <EmptyState
-              title="Belum ada data peserta"
-              description="Daftar peserta akan muncul ketika enrollment tersedia."
-            />
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ textAlign: 'left' }}>
-                  <th>ID</th>
-                  <th>Nama</th>
-                  <th>Display</th>
-                  <th>Status</th>
-                  <th>Review</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredItems.map((en) => (
-                  <tr key={en.id}>
-                    <td>{en.id}</td>
-                    <td>{en.participant_name}</td>
-                    <td>{en.display_name ?? '-'}</td>
-                    <td>{en.status}</td>
-                    <td>{en.review_status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )
-        ) : null}
+    <div style={{ padding: 16, display: 'grid', gap: 12 }}>
+      <div>
+        <h2>Enrollments – Daftar Peserta</h2>
+        <div style={{ color: '#666' }}>Halaman read-only sesuai role dan status event.</div>
       </div>
-    </RequireEventRole>
+
+      {!role ? (
+        <MessageBanner variant="info" message="Role belum terpasang." />
+      ) : null}
+
+      {eventStatus !== 'ongoing' ? (
+        <DisabledActionBanner reason={`Status event ${eventStatus}. Enrollments hanya dapat dilihat.`} />
+      ) : null}
+
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Cari peserta, ID, status"
+          style={{ padding: 8, minWidth: 240 }}
+        />
+      </div>
+
+      {loading ? <div>Memuat daftar peserta…</div> : null}
+      {error ? <ErrorState message={error} /> : null}
+
+      {!loading && !error ? (
+        filteredItems.length === 0 ? (
+          <EmptyState
+            title="Belum ada data peserta"
+            description="Daftar peserta akan muncul ketika enrollment tersedia."
+          />
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ textAlign: 'left' }}>
+                <th>ID</th>
+                <th>Nama</th>
+                <th>Display</th>
+                <th>Status</th>
+                <th>Review</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredItems.map((en) => (
+                <tr key={en.id}>
+                  <td>{en.id}</td>
+                  <td>{en.participant_name}</td>
+                  <td>{en.display_name ?? '-'}</td>
+                  <td>{en.status}</td>
+                  <td>{en.review_status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      ) : null}
+    </div>
   );
 }

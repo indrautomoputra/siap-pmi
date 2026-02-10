@@ -7,11 +7,11 @@ export default function EventLandingPage() {
   const { eventId, role, loading } = useEventContext();
   const router = useRouter();
   useEffect(() => {
-    if (!loading && !role) {
-      router.replace('/events'); // tidak terdaftar pada event
+    if (loading) return;
+    if (!role) {
+      router.replace(`/events/${eventId}/enrollments`);
       return;
     }
-    if (loading) return;
     const target =
       role === 'PANITIA'
         ? `/events/${eventId}/panitia/dashboard`
@@ -24,7 +24,7 @@ export default function EventLandingPage() {
   }, [router, role, eventId, loading]);
   return (
     <div style={{ padding: 16 }}>
-      <h1>Memuat area sesuai peran…</h1>
+      <h1>Mengarahkan ke dashboard event…</h1>
     </div>
   );
 }
