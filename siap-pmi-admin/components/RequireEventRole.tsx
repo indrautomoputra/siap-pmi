@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Forbidden from './Forbidden';
+import PermissionDenied from './PermissionDenied';
 import { useEventContext, EventRole } from '../app/events/[eventId]/EventContext';
 
 export function useRequireEventRole(allowed: EventRole[]) {
@@ -25,7 +25,7 @@ export default function RequireEventRole({
   }, [role, router, loading]);
   if (loading) return <div style={{ padding: 16 }}>Memuat…</div>;
   if (!role) return null;
-  if (!ok) return <Forbidden message="Role tidak sesuai untuk halaman ini." />;
+  if (!ok) return <PermissionDenied reason="Role tidak sesuai untuk halaman ini." />;
   return <>{children}</>;
 }
 

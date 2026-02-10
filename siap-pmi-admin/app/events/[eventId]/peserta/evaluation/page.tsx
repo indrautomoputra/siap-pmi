@@ -6,6 +6,7 @@ import RequireEventRole from '@/components/RequireEventRole';
 import EmptyState from '@/components/EmptyState';
 import MessageBanner from '@/components/MessageBanner';
 import Forbidden from '@/components/Forbidden';
+import DisabledActionBanner from '@/components/DisabledActionBanner';
 import { eventFetch, ForbiddenError } from '@/lib/eventApi';
 import { getSupabaseClient } from '@/lib/supabaseClient';
 
@@ -97,10 +98,7 @@ export default function PesertaEvaluationPage() {
   const [enrollmentId, setEnrollmentId] = useState<string | null>(null);
   const [responsesText, setResponsesText] = useState('{\n  \n}');
 
-  const canWrite = useMemo(
-    () => eventStatus === 'published' || eventStatus === 'ongoing',
-    [eventStatus],
-  );
+  const canWrite = useMemo(() => eventStatus === 'ongoing', [eventStatus]);
 
   const loadEnrollment = useCallback(async (): Promise<string | null> => {
     const sb = getSupabaseClient();
@@ -226,12 +224,11 @@ export default function PesertaEvaluationPage() {
         <h2>Peserta – Evaluasi Pelatihan</h2>
         <div style={{ marginBottom: 12 }}>Event: {eventId}</div>
         <div style={{ marginBottom: 12 }}>Status Event: {eventStatus}</div>
-        {!canWrite && (
-          <EmptyState
-            title="Evaluasi tidak dapat diisi pada status ini."
-            description="Evaluasi hanya dapat dikirim saat event berstatus published atau ongoing."
+        {!canWrite ? (
+          <DisabledActionBanner
+            reason={`Status event ${eventStatus}. Evaluasi hanya dapat dikirim saat event ongoing.`}
           />
-        )}
+        ) : null}
         {forbidden && <Forbidden />}
         {loading && <p>Memuat data evaluasi…</p>}
         {!loading && !forbidden && loadError && (
@@ -262,9 +259,8 @@ export default function PesertaEvaluationPage() {
               />
             ) : null}
             {!canWrite || evaluation ? (
-              <EmptyState
-                title="Mode read-only"
-                description="Evaluasi sudah terkirim atau event tidak sedang berlangsung."
+              <DisabledActionBanner
+                reason="Evaluasi bersifat read-only karena event tidak ongoing atau evaluasi sudah terkirim."
               />
             ) : null}
             <label style={{ display: 'block', marginBottom: 8 }}>

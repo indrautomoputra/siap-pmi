@@ -6,6 +6,7 @@ import RequireEventRole from '@/components/RequireEventRole';
 import EmptyState from '@/components/EmptyState';
 import MessageBanner from '@/components/MessageBanner';
 import Forbidden from '@/components/Forbidden';
+import DisabledActionBanner from '@/components/DisabledActionBanner';
 import { eventFetch, ForbiddenError } from '@/lib/eventApi';
 
 type AssessmentScoreItemDto = {
@@ -220,12 +221,11 @@ export default function ObserverAssessmentPage() {
         <div style={{ marginBottom: 12 }}>Event: {eventId}</div>
         <div style={{ marginBottom: 12 }}>Peserta: {participantId ?? '-'}</div>
         <div style={{ marginBottom: 12 }}>Status Event: {eventStatus}</div>
-        {!canWrite && (
-          <EmptyState
-            title="Penilaian hanya dapat dikirim saat event ongoing."
-            description="Selain ongoing, penilaian bersifat read-only."
+        {!canWrite ? (
+          <DisabledActionBanner
+            reason={`Status event ${eventStatus}. Penilaian hanya dapat dikirim saat event ongoing.`}
           />
-        )}
+        ) : null}
         {forbidden && <Forbidden />}
         {loading && <p>Memuat data penilaian…</p>}
         {!loading && !forbidden && loadError && (
@@ -244,9 +244,8 @@ export default function ObserverAssessmentPage() {
         {!loading && !forbidden && !loadError && participantId && (
           <form onSubmit={onSubmit} style={{ marginTop: 16 }} aria-busy={loading || submitting}>
             {!canWrite || currentAssessment ? (
-              <EmptyState
-                title="Mode read-only"
-                description="Penilaian sudah terkirim atau event tidak sedang berlangsung."
+              <DisabledActionBanner
+                reason="Penilaian bersifat read-only karena event tidak ongoing atau penilaian sudah terkirim."
               />
             ) : null}
             <label style={{ display: 'block', marginBottom: 8 }}>

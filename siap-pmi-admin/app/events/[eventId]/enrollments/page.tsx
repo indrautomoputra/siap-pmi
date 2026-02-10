@@ -1,7 +1,11 @@
-"use client";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { apiGet } from "../../../../lib/api";
+'use client';
+import { useEffect, useMemo, useState } from 'react';
+import { useEventContext } from '../EventContext';
+import RequireEventRole from '@/components/RequireEventRole';
+import ErrorState from '@/components/ErrorState';
+import EmptyState from '@/components/EmptyState';
+import DisabledActionBanner from '@/components/DisabledActionBanner';
+import { apiGet } from '../../../../lib/api';
 
 type Enrollment = {
   id: string;
@@ -12,11 +16,11 @@ type Enrollment = {
 };
 
 export default function EnrollmentsPage() {
-  const params = useParams();
-  const eventId = params?.eventId as string;
+  const { eventId, eventStatus } = useEventContext();
   const [items, setItems] = useState<Enrollment[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState('');
   useEffect(() => {
     const run = async () => {
       if (!eventId) return;
@@ -35,33 +39,75 @@ export default function EnrollmentsPage() {
     };
     run();
   }, [eventId]);
+  const filteredItems = useMemo(() => {
+    if (!query) return items;
+    const q = query.toLowerCase();
+    return items.filter(
+      (en) =>
+        en.id.toLowerCase().includes(q) ||
+        en.participant_name.toLowerCase().includes(q) ||
+        (en.display_name ?? '').toLowerCase().includes(q) ||
+        en.status.toLowerCase().includes(q) ||
+        en.review_status.toLowerCase().includes(q),
+    );
+  }, [items, query]);
   return (
-    <div style={{ padding: 16 }}>
-      <h2>Daftar Peserta Event {eventId}</h2>
-      {loading && <p>Memuat...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nama</th>
-            <th>Display</th>
-            <th>Status</th>
-            <th>Review</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((en) => (
-            <tr key={en.id}>
-              <td>{en.id}</td>
-              <td>{en.participant_name}</td>
-              <td>{en.display_name ?? "-"}</td>
-              <td>{en.status}</td>
-              <td>{en.review_status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <RequireEventRole allowed={['PANITIA', 'PESERTA']}>
+      <div style={{ padding: 16, display: 'grid', gap: 12 }}>
+        <div>
+          <h2>Enrollments – Daftar Peserta</h2>
+          <div style={{ color: '#666' }}>Halaman read-only sesuai role dan status event.</div>
+        </div>
+
+        {eventStatus !== 'ongoing' ? (
+          <DisabledActionBanner reason={`Status event ${eventStatus}. Enrollments hanya dapat dilihat.`} />
+        ) : null}
+
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Cari peserta, ID, status"
+            style={{ padding: 8, minWidth: 240 }}
+          />
+        </div>
+
+        {loading ? <div>Memuat daftar peserta…</div> : null}
+        {error ? <ErrorState message={error} /> : null}
+
+        {!loading && !error ? (
+          filteredItems.length === 0 ? (
+            <EmptyState
+              title="Belum ada data peserta"
+              description="Daftar peserta akan muncul ketika enrollment tersedia."
+            />
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ textAlign: 'left' }}>
+                  <th>ID</th>
+                  <th>Nama</th>
+                  <th>Display</th>
+                  <th>Status</th>
+                  <th>Review</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredItems.map((en) => (
+                  <tr key={en.id}>
+                    <td>{en.id}</td>
+                    <td>{en.participant_name}</td>
+                    <td>{en.display_name ?? '-'}</td>
+                    <td>{en.status}</td>
+                    <td>{en.review_status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        ) : null}
+      </div>
+    </RequireEventRole>
   );
 }

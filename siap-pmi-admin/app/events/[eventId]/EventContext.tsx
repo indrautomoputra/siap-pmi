@@ -10,6 +10,7 @@ type TrainingEvent = { id: string; name: string; status: EventStatus };
 type Ctx = {
   eventId: string;
   eventStatus: EventStatus;
+  eventName: string;
   role: EventRole | null;
   loading: boolean;
 };
@@ -33,6 +34,7 @@ export function EventContextProvider({
 }) {
   const [role, setRole] = useState<EventRole | null>(null);
   const [status, setStatus] = useState<EventStatus>('ongoing');
+  const [name, setName] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,9 +44,15 @@ export function EventContextProvider({
       try {
         const res = await apiGet<{ items: TrainingEvent[]; limit: number; offset: number }>('/events');
         const ev = res.items.find((e) => e.id === eventId);
-        if (active && ev) setStatus(ev.status);
+        if (active && ev) {
+          setStatus(ev.status);
+          setName(ev.name);
+        }
       } catch {
-        if (active) setStatus('ongoing');
+        if (active) {
+          setStatus('ongoing');
+          setName('');
+        }
       }
       try {
         const sb = getSupabaseClient();
@@ -82,6 +90,9 @@ export function EventContextProvider({
     };
   }, [eventId]);
 
-  const value = useMemo<Ctx>(() => ({ eventId, eventStatus: status, role, loading }), [eventId, status, role, loading]);
+  const value = useMemo<Ctx>(
+    () => ({ eventId, eventStatus: status, eventName: name, role, loading }),
+    [eventId, status, name, role, loading],
+  );
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;
 }

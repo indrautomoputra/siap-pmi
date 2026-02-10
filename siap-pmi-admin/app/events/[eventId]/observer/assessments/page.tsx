@@ -23,7 +23,7 @@ type ReportsParticipantsResponse = {
   participants: ReportsParticipantItem[];
 };
 
-export default function PelatihAssessmentsPage() {
+export default function ObserverAssessmentsPage() {
   const { eventId, eventStatus } = useEventContext();
   const [participants, setParticipants] = useState<ReportsParticipantItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -70,10 +70,10 @@ export default function PelatihAssessmentsPage() {
     : 0;
 
   return (
-    <RequireEventRole allowed={['PELATIH']}>
+    <RequireEventRole allowed={['OBSERVER']}>
       <div style={{ padding: 16, display: 'grid', gap: 12 }}>
         <div>
-          <h2>Pelatih – Daftar Penilaian Peserta</h2>
+          <h2>Observer – Daftar Penilaian Peserta</h2>
           <div style={{ color: '#666' }}>
             Penilaian hanya dapat dikirim saat event ongoing.
           </div>
@@ -138,7 +138,7 @@ export default function PelatihAssessmentsPage() {
                       </td>
                       <td>{item.hasEvaluation ? 'Sudah mengisi' : 'Belum mengisi'}</td>
                       <td>
-                        <Link href={`/events/${eventId}/pelatih/assessments/${item.enrollmentId}`}>
+                        <Link href={`/events/${eventId}/observer/assessments/${item.enrollmentId}`}>
                           Buka Penilaian
                         </Link>
                       </td>
