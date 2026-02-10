@@ -2,12 +2,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEventContext } from '../../../EventContext';
+import EventHeader from '../../../_components/EventHeader';
 import RequireEventRole from '@/components/RequireEventRole';
 import EmptyState from '@/components/EmptyState';
 import MessageBanner from '@/components/MessageBanner';
 import Forbidden from '@/components/Forbidden';
 import DisabledActionBanner from '@/components/DisabledActionBanner';
-import { eventFetch, ForbiddenError } from '@/lib/eventApi';
+import StatusBanner from '@/components/StatusBanner';
+import { eventFetch, eventGet, ForbiddenError } from '@/lib/eventApi';
 
 type AssessmentScoreItemDto = {
   id: string;
@@ -34,6 +36,16 @@ type ErrorDetail = {
 type SuccessDetail = {
   title: string;
   message: string;
+};
+
+type ReportsParticipantItem = {
+  enrollmentId: string;
+  participantName?: string;
+};
+
+type ReportsParticipantsResponse = {
+  eventId: string;
+  participants: ReportsParticipantItem[];
 };
 
 const parseErrorDetails = async (
@@ -98,6 +110,10 @@ export default function ObserverAssessmentPage() {
   const [submitError, setSubmitError] = useState<ErrorDetail | null>(null);
   const [success, setSuccess] = useState<SuccessDetail | null>(null);
   const [forbidden, setForbidden] = useState(false);
+  const [participantName, setParticipantName] = useState<string | null>(null);
+  const [participantExists, setParticipantExists] = useState<boolean | null>(
+    null,
+  );
   const [type, setType] = useState<'akademik' | 'sikap'>('akademik');
   const [instrumentId, setInstrumentId] = useState('');
   const [payloadText, setPayloadText] = useState('{\n  \n}');
@@ -129,14 +145,31 @@ export default function ObserverAssessmentPage() {
     setLoadError(null);
     setSuccess(null);
     setForbidden(false);
+    setParticipantExists(null);
     try {
-      const res = await eventFetch(eventId, `/events/${eventId}/assessments`);
+      const [res, participantsRes] = await Promise.all([
+        eventFetch(eventId, `/events/${eventId}/assessments`),
+        eventGet<ReportsParticipantsResponse>(
+          eventId,
+          `/events/${eventId}/reports/participants`,
+        ),
+      ]);
       if (!res.ok) {
         setLoadError(await parseErrorDetails(res, 'Gagal memuat'));
         return;
       }
       const data = (await res.json()) as AssessmentScoreListResponseDto;
       setItems(data.items ?? []);
+      const match = (participantsRes.participants ?? []).find(
+        (item) => item.enrollmentId === participantId,
+      );
+      if (match) {
+        setParticipantExists(true);
+        setParticipantName(match.participantName ?? match.enrollmentId);
+      } else {
+        setParticipantExists(false);
+        setParticipantName(null);
+      }
     } catch (e) {
       if (e instanceof ForbiddenError) {
         setForbidden(true);
@@ -216,11 +249,16 @@ export default function ObserverAssessmentPage() {
 
   return (
     <RequireEventRole allowed={['OBSERVER']}>
-      <div style={{ padding: 16, maxWidth: 720 }}>
-        <h2>Observer – Penilaian Peserta</h2>
-        <div style={{ marginBottom: 12 }}>Event: {eventId}</div>
-        <div style={{ marginBottom: 12 }}>Peserta: {participantId ?? '-'}</div>
-        <div style={{ marginBottom: 12 }}>Status Event: {eventStatus}</div>
+      <div style={{ padding: 16, maxWidth: 720, display: 'grid', gap: 12 }}>
+        <EventHeader />
+        <div>
+          <h2>Observer – Penilaian Peserta</h2>
+          <div style={{ color: '#666' }}>
+            Monitoring penilaian peserta selama event berjalan.
+          </div>
+        </div>
+        <StatusBanner status={eventStatus} />
+        <div>Peserta: {participantName ?? participantId ?? '-'}</div>
         {!canWrite ? (
           <DisabledActionBanner
             reason={`Status event ${eventStatus}. Penilaian hanya dapat dikirim saat event ongoing.`}
@@ -238,10 +276,20 @@ export default function ObserverAssessmentPage() {
             onAction={load}
           />
         )}
-        {!loading && !forbidden && !loadError && !participantId && (
+        {!loading && !forbidden && !loadError && !participantId ? (
           <EmptyState title="Peserta tidak ditemukan." />
-        )}
-        {!loading && !forbidden && !loadError && participantId && (
+        ) : null}
+        {!loading && !forbidden && !loadError && participantExists === false ? (
+          <EmptyState
+            title="Peserta tidak ditemukan."
+            description="Enrollment tidak ditemukan pada event ini."
+          />
+        ) : null}
+        {!loading &&
+        !forbidden &&
+        !loadError &&
+        participantId &&
+        participantExists !== false ? (
           <form onSubmit={onSubmit} style={{ marginTop: 16 }} aria-busy={loading || submitting}>
             {!canWrite || currentAssessment ? (
               <DisabledActionBanner
@@ -306,13 +354,20 @@ export default function ObserverAssessmentPage() {
                 details={submitError.details}
               />
             )}
-            <button
-              type="submit"
-              aria-label="Kirim Penilaian"
-              disabled={!canWrite || loading || submitting || !!currentAssessment}
-            >
-              {submitting ? 'Mengirim Penilaian…' : 'Kirim Penilaian'}
-            </button>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button type="button" disabled title="Draft belum tersedia">
+                Simpan Draft
+              </button>
+              <button
+                type="submit"
+                aria-label="Kirim Penilaian"
+                disabled={
+                  !canWrite || loading || submitting || !!currentAssessment
+                }
+              >
+                {submitting ? 'Mengirim Penilaian…' : 'Kirim'}
+              </button>
+            </div>
             {currentAssessment || success ? (
               <div style={{ marginTop: 12 }}>
                 <button
@@ -327,7 +382,7 @@ export default function ObserverAssessmentPage() {
               </div>
             ) : null}
           </form>
-        )}
+        ) : null}
       </div>
     </RequireEventRole>
   );

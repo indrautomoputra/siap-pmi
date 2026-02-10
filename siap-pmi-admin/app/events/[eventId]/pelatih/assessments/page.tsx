@@ -2,11 +2,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useEventContext } from '../../EventContext';
+import EventHeader from '../../_components/EventHeader';
 import RequireEventRole from '@/components/RequireEventRole';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import Forbidden from '@/components/Forbidden';
 import DisabledActionBanner from '@/components/DisabledActionBanner';
+import StatusBanner from '@/components/StatusBanner';
 import { eventGet, ForbiddenError } from '@/lib/eventApi';
 
 type ReportsParticipantItem = {
@@ -21,6 +23,22 @@ type ReportsParticipantItem = {
 type ReportsParticipantsResponse = {
   eventId: string;
   participants: ReportsParticipantItem[];
+};
+
+const getDisabledReason = (status: string) => {
+  if (status === 'draft' || status === 'published') {
+    return 'Event belum berjalan, aksi tulis belum tersedia';
+  }
+  if (status === 'completed' || status === 'cancelled') {
+    return 'Event sudah selesai, semua read-only';
+  }
+  return '';
+};
+
+const getAssessmentStatus = (item: ReportsParticipantItem) => {
+  if (item.hasAssessment) return 'Terkirim';
+  if (item.lastAssessmentAt) return 'Draft';
+  return 'Belum Dinilai';
 };
 
 export default function PelatihAssessmentsPage() {
@@ -72,12 +90,14 @@ export default function PelatihAssessmentsPage() {
   return (
     <RequireEventRole allowed={['PELATIH']}>
       <div style={{ padding: 16, display: 'grid', gap: 12 }}>
+        <EventHeader />
         <div>
           <h2>Pelatih – Daftar Penilaian Peserta</h2>
           <div style={{ color: '#666' }}>
             Penilaian hanya dapat dikirim saat event ongoing.
           </div>
         </div>
+        <StatusBanner status={eventStatus} />
         {eventStatus !== 'ongoing' ? (
           <DisabledActionBanner
             reason={`Status event ${eventStatus}. Tautan penilaian tetap tersedia, aksi submit dinonaktifkan.`}
@@ -121,8 +141,6 @@ export default function PelatihAssessmentsPage() {
                   <tr style={{ textAlign: 'left' }}>
                     <th>Peserta</th>
                     <th>Status Penilaian</th>
-                    <th>Waktu Penilaian Terakhir</th>
-                    <th>Status Evaluasi</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
@@ -130,17 +148,24 @@ export default function PelatihAssessmentsPage() {
                   {participants.map((item) => (
                     <tr key={item.enrollmentId}>
                       <td>{item.participantName ?? item.enrollmentId}</td>
-                      <td>{item.hasAssessment ? 'Sudah dinilai' : 'Belum dinilai'}</td>
+                      <td>{getAssessmentStatus(item)}</td>
                       <td>
-                        {item.lastAssessmentAt
-                          ? new Date(item.lastAssessmentAt).toLocaleDateString()
-                          : '-'}
-                      </td>
-                      <td>{item.hasEvaluation ? 'Sudah mengisi' : 'Belum mengisi'}</td>
-                      <td>
-                        <Link href={`/events/${eventId}/pelatih/assessments/${item.enrollmentId}`}>
-                          Buka Penilaian
-                        </Link>
+                        {eventStatus === 'ongoing' ? (
+                          <Link
+                            href={`/events/${eventId}/pelatih/assessments/${item.enrollmentId}`}
+                          >
+                            Nilai
+                          </Link>
+                        ) : (
+                          <div style={{ display: 'grid', gap: 4 }}>
+                            <button type="button" disabled>
+                              Lihat
+                            </button>
+                            <div style={{ color: '#666', fontSize: 12 }}>
+                              {getDisabledReason(eventStatus)}
+                            </div>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
