@@ -18,7 +18,7 @@ export default function EventNav() {
           { key: 'dashboard', label: 'Dashboard', href: (id) => `/events/${id}` },
           { key: 'enrollments', label: 'Enrollments', href: (id) => `/events/${id}/enrollments` },
           { key: 'graduations', label: 'Kelulusan', href: (id) => `/events/${id}/graduations` },
-          { key: 'closure', label: 'Penutupan', href: (id) => `/events/${id}/closure` },
+          { key: 'closure', label: 'Penutupan', href: (id) => `/events/${id}/panitia/closure` },
         ]
       : role === 'PELATIH'
       ? [

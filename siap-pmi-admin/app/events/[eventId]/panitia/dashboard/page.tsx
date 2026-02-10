@@ -169,7 +169,7 @@ export default function PanitiaDashboardPage() {
             <DashboardCard
               title="Penutupan"
               description="Checklist penutupan event (read-only)."
-              href={`/events/${eventId}/closure`}
+              href={`/events/${eventId}/panitia/closure`}
             />
           </div>
         </div>
