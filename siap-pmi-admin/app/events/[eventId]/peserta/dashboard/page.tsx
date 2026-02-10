@@ -2,11 +2,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useEventContext } from '../../EventContext';
+import EventHeader from '../../_components/EventHeader';
 import RequireEventRole from '@/components/RequireEventRole';
 import SummaryCard from '@/components/SummaryCard';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import Forbidden from '@/components/Forbidden';
+import DashboardCard from '@/components/DashboardCard';
+import StatusBanner from '@/components/StatusBanner';
 import { getSupabaseClient } from '@/lib/supabaseClient';
 import { eventFetch, ForbiddenError } from '@/lib/eventApi';
 
@@ -49,16 +52,6 @@ const parseErrorMessage = async (res: Response): Promise<string> => {
   return `Request gagal (${res.status})`;
 };
 
-const getStatusMessage = (status: string) => {
-  if (status === 'draft') return 'Event belum dimulai. Operasional dinonaktifkan.';
-  if (status === 'published')
-    return 'Event sudah dipublikasikan. Peserta dapat melihat informasi.';
-  if (status === 'ongoing') return 'Event berlangsung. Data tampil read-only.';
-  if (status === 'completed')
-    return 'Event selesai. Menampilkan rekap akhir.';
-  return 'Event dibatalkan.';
-};
-
 export default function PesertaDashboardPage() {
   const { eventId, eventStatus } = useEventContext();
   const [enrollment, setEnrollment] = useState<EnrollmentItem | null>(null);
@@ -69,17 +62,23 @@ export default function PesertaDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState(false);
 
-  const canWrite = useMemo(
-    () => eventStatus === 'published' || eventStatus === 'ongoing',
-    [eventStatus],
-  );
+  const canWrite = useMemo(() => eventStatus === 'ongoing', [eventStatus]);
 
   const disabledReason = useMemo(() => {
-    if (eventStatus === 'draft') return 'Event belum dimulai.';
-    if (eventStatus === 'completed') return 'Event sudah selesai.';
-    if (eventStatus === 'cancelled') return 'Event dibatalkan.';
+    if (eventStatus === 'draft' || eventStatus === 'published') {
+      return 'Event belum berjalan, aksi tulis belum tersedia';
+    }
+    if (eventStatus === 'completed' || eventStatus === 'cancelled') {
+      return 'Event sudah selesai, semua read-only';
+    }
     return '';
   }, [eventStatus]);
+
+  const evaluationDisabledReason = useMemo(() => {
+    if (eventStatus === 'ongoing') return '';
+    if (evaluation) return '';
+    return disabledReason;
+  }, [disabledReason, eventStatus, evaluation]);
 
   useEffect(() => {
     if (!eventId) return;
@@ -152,9 +151,29 @@ export default function PesertaDashboardPage() {
   return (
     <RequireEventRole allowed={['PESERTA']}>
       <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <EventHeader />
         <div>
           <h2>Peserta – Dashboard</h2>
-          <div style={{ color: '#666' }}>{getStatusMessage(eventStatus)}</div>
+          <div style={{ color: '#666' }}>
+            Pantau status enrollment dan isi evaluasi pelatihan.
+          </div>
+        </div>
+        <StatusBanner status={eventStatus} />
+        <div style={{ display: 'grid', gap: 12 }}>
+          <h3>Aksi Cepat</h3>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <DashboardCard
+              title="Enrollment"
+              description="Cek status pendaftaran peserta."
+              href={`/events/${eventId}/peserta/enrollment`}
+            />
+            <DashboardCard
+              title="Evaluation"
+              description="Isi evaluasi pelatihan."
+              href={`/events/${eventId}/peserta/evaluation`}
+              disabledReason={evaluationDisabledReason || undefined}
+            />
+          </div>
         </div>
 
         {loading ? <div>Memuat status peserta…</div> : null}

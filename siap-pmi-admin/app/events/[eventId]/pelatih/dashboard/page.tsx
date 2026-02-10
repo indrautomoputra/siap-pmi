@@ -2,11 +2,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useEventContext } from '../../EventContext';
+import EventHeader from '../../_components/EventHeader';
 import RequireEventRole from '@/components/RequireEventRole';
 import SummaryCard from '@/components/SummaryCard';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import Forbidden from '@/components/Forbidden';
+import DashboardCard from '@/components/DashboardCard';
+import StatusBanner from '@/components/StatusBanner';
 import { eventGet, ForbiddenError } from '@/lib/eventApi';
 
 type ReportsParticipantItem = {
@@ -32,22 +35,14 @@ type ReportsSummaryResponse = {
   totalEvaluationsSubmitted: number;
 };
 
-const getStatusMessage = (status: string) => {
-  if (status === 'draft') return 'Event belum dimulai. Operasional dinonaktifkan.';
-  if (status === 'published')
-    return 'Event sudah dipublikasikan. Mode read-only.';
-  if (status === 'ongoing') return 'Event berlangsung. Data tampil read-only.';
-  if (status === 'completed')
-    return 'Event selesai. Menampilkan rekap akhir.';
-  return 'Event dibatalkan.';
-};
-
 const getDisabledReason = (status: string) => {
-  if (status === 'draft') return 'Event belum dimulai.';
-  if (status === 'published') return 'Event belum berlangsung.';
-  if (status === 'completed') return 'Event sudah selesai.';
-  if (status === 'cancelled') return 'Event dibatalkan.';
-  return 'Event belum berlangsung.';
+  if (status === 'draft' || status === 'published') {
+    return 'Event belum berjalan, aksi tulis belum tersedia';
+  }
+  if (status === 'completed' || status === 'cancelled') {
+    return 'Event sudah selesai, semua read-only';
+  }
+  return '';
 };
 
 export default function PelatihDashboardPage() {
@@ -109,9 +104,26 @@ export default function PelatihDashboardPage() {
   return (
     <RequireEventRole allowed={['PELATIH']}>
       <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <EventHeader />
         <div>
           <h2>Pelatih – Dashboard</h2>
-          <div style={{ color: '#666' }}>{getStatusMessage(eventStatus)}</div>
+          <div style={{ color: '#666' }}>
+            Pantau penilaian dan fokus menilai peserta selama event berjalan.
+          </div>
+        </div>
+        <StatusBanner status={eventStatus} />
+        <div style={{ display: 'grid', gap: 12 }}>
+          <h3>Aksi Cepat</h3>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <DashboardCard
+              title="Assessments"
+              description="Daftar peserta untuk penilaian."
+              href={`/events/${eventId}/pelatih/assessments`}
+            />
+          </div>
+          <div style={{ color: '#666', fontSize: 13 }}>
+            Nilai peserta selama status event Ongoing.
+          </div>
         </div>
 
         {forbidden ? <Forbidden /> : null}

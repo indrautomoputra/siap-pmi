@@ -1,11 +1,14 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useEventContext } from '../../EventContext';
+import EventHeader from '../../_components/EventHeader';
 import RequireEventRole from '@/components/RequireEventRole';
 import SummaryCard from '@/components/SummaryCard';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
 import Forbidden from '@/components/Forbidden';
+import DashboardCard from '@/components/DashboardCard';
+import StatusBanner from '@/components/StatusBanner';
 import { eventGet, ForbiddenError } from '@/lib/eventApi';
 
 type DashboardParticipantItem = {
@@ -52,16 +55,6 @@ type GraduationDecisionItem = {
 type GraduationDecisionsResponse = {
   eventId: string;
   decisions: GraduationDecisionItem[];
-};
-
-const getStatusMessage = (status: string) => {
-  if (status === 'draft') return 'Event belum dimulai. Operasional dinonaktifkan.';
-  if (status === 'published')
-    return 'Event sudah dipublikasikan. Mode read-only.';
-  if (status === 'ongoing') return 'Event berlangsung. Data tampil read-only.';
-  if (status === 'completed')
-    return 'Event selesai. Menampilkan rekap akhir.';
-  return 'Event dibatalkan.';
 };
 
 export default function PanitiaDashboardPage() {
@@ -152,9 +145,33 @@ export default function PanitiaDashboardPage() {
   return (
     <RequireEventRole allowed={['PANITIA']}>
       <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <EventHeader />
         <div>
           <h2>Panitia – Dashboard</h2>
-          <div style={{ color: '#666' }}>{getStatusMessage(eventStatus)}</div>
+          <div style={{ color: '#666' }}>
+            Ringkasan operasional event dan keputusan kelulusan.
+          </div>
+        </div>
+        <StatusBanner status={eventStatus} />
+        <div style={{ display: 'grid', gap: 12 }}>
+          <h3>Aksi Cepat</h3>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <DashboardCard
+              title="Enrollment"
+              description="Lihat daftar peserta dan status enrollment."
+              href={`/events/${eventId}/enrollments`}
+            />
+            <DashboardCard
+              title="Kelulusan"
+              description="Rekap keputusan rapat kelulusan (read-only)."
+              href={`/events/${eventId}/graduations`}
+            />
+            <DashboardCard
+              title="Penutupan"
+              description="Checklist penutupan event (read-only)."
+              href={`/events/${eventId}/closure`}
+            />
+          </div>
         </div>
 
         {forbidden ? <Forbidden /> : null}
