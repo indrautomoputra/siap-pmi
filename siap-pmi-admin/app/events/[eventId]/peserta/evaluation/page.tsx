@@ -2,11 +2,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEventContext } from '../../EventContext';
+import EventHeader from '../../_components/EventHeader';
 import RequireEventRole from '@/components/RequireEventRole';
 import EmptyState from '@/components/EmptyState';
 import MessageBanner from '@/components/MessageBanner';
 import Forbidden from '@/components/Forbidden';
 import DisabledActionBanner from '@/components/DisabledActionBanner';
+import StatusBanner from '@/components/StatusBanner';
 import { eventFetch, ForbiddenError } from '@/lib/eventApi';
 import { getSupabaseClient } from '@/lib/supabaseClient';
 
@@ -99,6 +101,15 @@ export default function PesertaEvaluationPage() {
   const [responsesText, setResponsesText] = useState('{\n  \n}');
 
   const canWrite = useMemo(() => eventStatus === 'ongoing', [eventStatus]);
+  const disabledReason = useMemo(() => {
+    if (eventStatus !== 'ongoing') {
+      return `Status event ${eventStatus}. Evaluasi hanya dapat dikirim saat event ongoing.`;
+    }
+    if (evaluation) {
+      return 'Evaluasi sudah dikirim.';
+    }
+    return '';
+  }, [eventStatus, evaluation]);
 
   const loadEnrollment = useCallback(async (): Promise<string | null> => {
     const sb = getSupabaseClient();
@@ -220,14 +231,17 @@ export default function PesertaEvaluationPage() {
 
   return (
     <RequireEventRole allowed={['PESERTA']}>
-      <div style={{ padding: 16, maxWidth: 720 }}>
-        <h2>Peserta – Evaluasi Pelatihan</h2>
-        <div style={{ marginBottom: 12 }}>Event: {eventId}</div>
-        <div style={{ marginBottom: 12 }}>Status Event: {eventStatus}</div>
-        {!canWrite ? (
-          <DisabledActionBanner
-            reason={`Status event ${eventStatus}. Evaluasi hanya dapat dikirim saat event ongoing.`}
-          />
+      <div style={{ padding: 16, maxWidth: 720, display: 'grid', gap: 12 }}>
+        <EventHeader />
+        <div>
+          <h2>Peserta – Evaluasi Pelatihan</h2>
+          <div style={{ color: '#666' }}>
+            Evaluasi ini tidak mempengaruhi kelulusan.
+          </div>
+        </div>
+        <StatusBanner status={eventStatus} />
+        {!canWrite || evaluation ? (
+          <DisabledActionBanner reason={disabledReason} />
         ) : null}
         {forbidden && <Forbidden />}
         {loading && <p>Memuat data evaluasi…</p>}
@@ -256,11 +270,6 @@ export default function PesertaEvaluationPage() {
                 message={`Terkirim pada ${new Date(
                   evaluation.submittedAt,
                 ).toLocaleString()}. Data bersifat read-only.`}
-              />
-            ) : null}
-            {!canWrite || evaluation ? (
-              <DisabledActionBanner
-                reason="Evaluasi bersifat read-only karena event tidak ongoing atau evaluasi sudah terkirim."
               />
             ) : null}
             <label style={{ display: 'block', marginBottom: 8 }}>
