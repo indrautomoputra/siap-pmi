@@ -18,3 +18,6 @@ Catatan operasional memuat isu akses atau role per event jika ada, insiden opera
 
 ## Status Penutupan
 Status penutupan mencantumkan tanggal penutupan, pernyataan kelengkapan dokumen, dan ketersediaan arsip event.
+Tanggal Penutupan: ____________________  
+Status Dokumen: ____________________  
+Ketersediaan Arsip: ____________________
