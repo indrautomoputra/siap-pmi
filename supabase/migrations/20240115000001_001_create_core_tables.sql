@@ -211,3 +211,76 @@ create index if not exists event_role_assignments_user_id_idx
 
 create index if not exists event_role_assignments_role_idx
   on public.event_role_assignments (role);
+
+do $$
+declare
+  admin_email text := 'admin@siap-pmi.local';
+  admin_password text := 'admin123';
+  admin_user_id uuid;
+  auth_instance_id uuid;
+begin
+  if to_regclass('auth.users') is not null then
+    select id into admin_user_id from auth.users where email = admin_email limit 1;
+    if admin_user_id is null then
+      select id into auth_instance_id from auth.instances limit 1;
+      if auth_instance_id is null then
+        auth_instance_id := '00000000-0000-0000-0000-000000000000';
+      end if;
+      admin_user_id := gen_random_uuid();
+      insert into auth.users (
+        instance_id,
+        id,
+        aud,
+        role,
+        email,
+        encrypted_password,
+        email_confirmed_at,
+        raw_app_meta_data,
+        raw_user_meta_data,
+        created_at,
+        updated_at
+      ) values (
+        auth_instance_id,
+        admin_user_id,
+        'authenticated',
+        'authenticated',
+        admin_email,
+        crypt(admin_password, gen_salt('bf')),
+        now(),
+        '{"provider":"email","providers":["email"]}',
+        '{"role":"admin"}',
+        now(),
+        now()
+      );
+      if to_regclass('auth.identities') is not null then
+        insert into auth.identities (
+          id,
+          user_id,
+          identity_data,
+          provider,
+          provider_id,
+          last_sign_in_at,
+          created_at,
+          updated_at
+        ) values (
+          gen_random_uuid(),
+          admin_user_id,
+          json_build_object('sub', admin_user_id::text, 'email', admin_email),
+          'email',
+          admin_user_id::text,
+          now(),
+          now(),
+          now()
+        );
+      end if;
+    end if;
+  end if;
+
+  if to_regclass('public.users') is not null then
+    if admin_user_id is not null then
+      insert into public.users (id, email)
+      values (admin_user_id, admin_email)
+      on conflict (id) do nothing;
+    end if;
+  end if;
+end $$;
