@@ -1,264 +1,311 @@
-'use client';
-import { useEffect, useMemo, useState } from 'react';
-import { useEventContext } from '../../EventContext';
-import EventHeader from '../../_components/EventHeader';
-import RequireEventRole from '@/components/RequireEventRole';
-import SummaryCard from '@/components/SummaryCard';
-import EmptyState from '@/components/EmptyState';
-import ErrorState from '@/components/ErrorState';
-import Forbidden from '@/components/Forbidden';
 import DashboardCard from '@/components/DashboardCard';
 import StatusBanner from '@/components/StatusBanner';
-import { eventGet, ForbiddenError } from '@/lib/eventApi';
 
-type DashboardParticipantItem = {
-  enrollmentId: string;
-  participantName: string;
-  displayName?: string;
-  status: string;
-  reviewStatus: string;
-  registeredAt: string;
-  pmiElement?: string;
-};
+type EventStatus = 'draft' | 'published' | 'ongoing' | 'completed' | 'cancelled';
 
-type DashboardParticipantsResponse = {
-  eventId: string;
-  participants: DashboardParticipantItem[];
-};
+interface PageProps {
+  params: {
+    eventId: string;
+  };
+}
 
-type ReportsSummaryResponse = {
-  eventId: string;
-  totalEnrollments: number;
-  totalParticipants: number;
-  totalTrainers: number;
-  totalObservers: number;
-  totalEvaluationsSubmitted: number;
-  totalAssessedParticipants: number;
-  evaluationSubmissionRate: number;
-  assessmentCoverageRate: number;
-};
+export default function PanitiaDashboardPage({ params }: PageProps) {
+  const mockEvent = {
+    id: params.eventId,
+    name: 'Pelatihan KSR Dasar Batch 5',
+    status: 'ongoing' as const,
+  };
 
-type GraduationDecisionItem = {
-  id: string;
-  eventId: string;
-  enrollmentId: string;
-  decision: string;
-  decidedBy: string;
-  decidedAt: string;
-  note?: string;
-  participantName: string;
-  displayName?: string;
-  status: string;
-  reviewStatus: string;
-};
+  const mockSummary = {
+    totalEnrollments: 160,
+    totalParticipants: 142,
+    totalTrainers: 6,
+    totalObservers: 3,
+    totalEvaluationsSubmitted: 98,
+    totalAssessedParticipants: 86,
+    evaluationSubmissionRate: 0.69,
+    assessmentCoverageRate: 0.61,
+  };
 
-type GraduationDecisionsResponse = {
-  eventId: string;
-  decisions: GraduationDecisionItem[];
-};
+  const participants = [
+    {
+      enrollmentId: 'enr-2026-001',
+      participantName: 'Aulia Rahman',
+      displayName: 'Aulia Rahman',
+      status: 'active',
+      reviewStatus: 'approved',
+      registeredAt: '2026-02-01',
+    },
+    {
+      enrollmentId: 'enr-2026-002',
+      participantName: 'Dimas Pratama',
+      displayName: 'Dimas Pratama',
+      status: 'active',
+      reviewStatus: 'pending_review',
+      registeredAt: '2026-02-02',
+    },
+    {
+      enrollmentId: 'enr-2026-003',
+      participantName: 'Sari Utami',
+      displayName: 'Sari Utami',
+      status: 'active',
+      reviewStatus: 'approved',
+      registeredAt: '2026-02-03',
+    },
+    {
+      enrollmentId: 'enr-2026-004',
+      participantName: 'Rizky Andika',
+      displayName: 'Rizky Andika',
+      status: 'inactive',
+      reviewStatus: 'rejected',
+      registeredAt: '2026-02-03',
+    },
+    {
+      enrollmentId: 'enr-2026-005',
+      participantName: 'Maya Putri',
+      displayName: 'Maya Putri',
+      status: 'active',
+      reviewStatus: 'approved',
+      registeredAt: '2026-02-04',
+    },
+  ];
 
-export default function PanitiaDashboardPage() {
-  const { eventId, eventStatus } = useEventContext();
-  const [participants, setParticipants] = useState<DashboardParticipantItem[]>(
-    [],
+  const decisions = [
+    { id: 'dec-001', participantName: 'Aulia Rahman', decision: 'lulus', decidedAt: '2026-02-10 09:30' },
+    { id: 'dec-002', participantName: 'Sari Utami', decision: 'lulus', decidedAt: '2026-02-10 09:35' },
+    { id: 'dec-003', participantName: 'Rizky Andika', decision: 'tidak_lulus', decidedAt: '2026-02-10 09:45' },
+    { id: 'dec-004', participantName: 'Dimas Pratama', decision: 'ditunda', decidedAt: '2026-02-10 09:50' },
+  ];
+
+  const reviewStats = participants.reduce(
+    (acc, item) => {
+      if (item.reviewStatus === 'approved') acc.approved += 1;
+      if (item.reviewStatus === 'rejected') acc.rejected += 1;
+      if (item.reviewStatus === 'pending_review') acc.pending += 1;
+      return acc;
+    },
+    { approved: 0, rejected: 0, pending: 0 },
   );
-  const [summary, setSummary] = useState<ReportsSummaryResponse | null>(null);
-  const [decisions, setDecisions] = useState<GraduationDecisionItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [forbidden, setForbidden] = useState(false);
 
-  useEffect(() => {
-    if (!eventId) return;
-    let active = true;
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      setForbidden(false);
-      try {
-        const [participantsRes, summaryRes, decisionsRes] = await Promise.all([
-          eventGet<DashboardParticipantsResponse>(
-            eventId,
-            `/events/${eventId}/dashboard/participants`,
-          ),
-          eventGet<ReportsSummaryResponse>(
-            eventId,
-            `/events/${eventId}/reports/summary`,
-          ),
-          eventGet<GraduationDecisionsResponse>(
-            eventId,
-            `/events/${eventId}/graduations`,
-          ),
-        ]);
-        if (!active) return;
-        setParticipants(participantsRes.participants);
-        setSummary(summaryRes);
-        setDecisions(decisionsRes.decisions);
-      } catch (e) {
-        if (!active) return;
-        if (e instanceof ForbiddenError) {
-          setForbidden(true);
-        } else {
-          setError((e as Error).message);
-        }
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-    load();
-    return () => {
-      active = false;
-    };
-  }, [eventId]);
+  const decisionStats = decisions.reduce(
+    (acc, item) => {
+      if (item.decision === 'lulus') acc.lulus += 1;
+      if (item.decision === 'tidak_lulus') acc.tidakLulus += 1;
+      if (item.decision === 'ditunda') acc.ditunda += 1;
+      return acc;
+    },
+    { lulus: 0, tidakLulus: 0, ditunda: 0 },
+  );
 
-  const reviewStats = useMemo(() => {
-    return participants.reduce(
-      (acc, item) => {
-        if (item.reviewStatus === 'approved') acc.approved += 1;
-        if (item.reviewStatus === 'rejected') acc.rejected += 1;
-        if (item.reviewStatus === 'pending_review') acc.pending += 1;
-        return acc;
-      },
-      { approved: 0, rejected: 0, pending: 0 },
-    );
-  }, [participants]);
+  const assessmentRate = `${Math.round(mockSummary.assessmentCoverageRate * 100)}%`;
+  const evaluationRate = `${Math.round(mockSummary.evaluationSubmissionRate * 100)}%`;
 
-  const decisionStats = useMemo(() => {
-    return decisions.reduce(
-      (acc, item) => {
-        if (item.decision === 'lulus') acc.lulus += 1;
-        if (item.decision === 'tidak_lulus') acc.tidakLulus += 1;
-        if (item.decision === 'ditunda') acc.ditunda += 1;
-        return acc;
-      },
-      { lulus: 0, tidakLulus: 0, ditunda: 0 },
-    );
-  }, [decisions]);
+  const statusLabel: Record<EventStatus, string> = {
+    draft: 'Draft',
+    published: 'Published',
+    ongoing: 'Ongoing',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+  };
 
-  const assessmentRate = summary
-    ? `${Math.round(summary.assessmentCoverageRate * 100)}%`
-    : '-';
-  const evaluationRate = summary
-    ? `${Math.round(summary.evaluationSubmissionRate * 100)}%`
-    : '-';
+  const statusClass: Record<EventStatus, string> = {
+    draft: 'border-slate-200 bg-slate-100 text-slate-600',
+    published: 'border-blue-200 bg-blue-50 text-blue-700',
+    ongoing: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    completed: 'border-gray-200 bg-gray-100 text-gray-700',
+    cancelled: 'border-red-200 bg-red-50 text-red-700',
+  };
 
   return (
-    <RequireEventRole allowed={['PANITIA']}>
-      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <EventHeader />
-        <div>
-          <h2>Panitia – Dashboard</h2>
-          <div style={{ color: '#666' }}>
-            Ringkasan operasional event dan keputusan kelulusan.
+    <div className="container mx-auto max-w-7xl px-4 py-8">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-semibold">Panitia – Dashboard</h1>
+            <span
+              className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass[mockEvent.status]}`}
+            >
+              {statusLabel[mockEvent.status]}
+            </span>
+          </div>
+          <p className="text-slate-600">
+            Ringkasan operasional event dan keputusan kelulusan manual.
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
+            <span className="font-medium text-slate-900">{mockEvent.name}</span>
+            <span>Event ID: {mockEvent.id}</span>
+            <span>Status: {statusLabel[mockEvent.status]}</span>
           </div>
         </div>
-        <StatusBanner status={eventStatus} />
-        <div style={{ display: 'grid', gap: 12 }}>
-          <h3>Aksi Cepat</h3>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+
+        <StatusBanner status={mockEvent.status} className="max-w-3xl" />
+
+        <div className="flex flex-col gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">Aksi Cepat</h2>
+            <p className="text-sm text-slate-600">
+              Akses operasional utama untuk panitia event.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
             <DashboardCard
               title="Enrollment"
               description="Lihat daftar peserta dan status enrollment."
-              href={`/events/${eventId}/enrollments`}
+              href={`/events/${mockEvent.id}/enrollments`}
             />
             <DashboardCard
               title="Kelulusan"
-              description="Rekap keputusan rapat kelulusan (read-only)."
-              href={`/events/${eventId}/graduations`}
+              description="Rekap keputusan rapat kelulusan (manual)."
+              href={`/events/${mockEvent.id}/graduations`}
             />
             <DashboardCard
               title="Penutupan"
               description="Checklist penutupan event (read-only)."
-              href={`/events/${eventId}/panitia/closure`}
+              href={`/events/${mockEvent.id}/panitia/closure`}
             />
           </div>
         </div>
 
-        {forbidden ? <Forbidden /> : null}
-        {loading ? <div>Memuat data dashboard…</div> : null}
-        {error ? <ErrorState message={error} /> : null}
-
-        {!loading && !error && !forbidden ? (
-          <>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <SummaryCard title="Total Peserta" value={participants.length} />
-              <SummaryCard title="Review Pending" value={reviewStats.pending} />
-              <SummaryCard title="Review Disetujui" value={reviewStats.approved} />
-              <SummaryCard title="Review Ditolak" value={reviewStats.rejected} />
-              <SummaryCard title="Cakupan Penilaian" value={assessmentRate} />
-              <SummaryCard
-                title="Pengumpulan Evaluasi"
-                value={evaluationRate}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gap: 12 }}>
-              <h3>Daftar Peserta</h3>
-              {participants.length === 0 ? (
-                <EmptyState
-                  title="Belum ada peserta"
-                  description="Daftar peserta akan muncul setelah pendaftaran masuk."
-                />
-              ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left' }}>
-                      <th>Nama</th>
-                      <th>Status</th>
-                      <th>Review</th>
-                      <th>Terdaftar</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {participants.slice(0, 10).map((item) => (
-                      <tr key={item.enrollmentId}>
-                        <td>{item.displayName ?? item.participantName}</td>
-                        <td>{item.status}</td>
-                        <td>{item.reviewStatus}</td>
-                        <td>{new Date(item.registeredAt).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-
-            <div style={{ display: 'grid', gap: 12 }}>
-              <h3>Status Keputusan Kelulusan</h3>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                <SummaryCard title="Lulus" value={decisionStats.lulus} />
-                <SummaryCard title="Tidak Lulus" value={decisionStats.tidakLulus} />
-                <SummaryCard title="Ditunda" value={decisionStats.ditunda} />
+        <div className="grid gap-4">
+          <h2 className="text-lg font-semibold text-slate-900">Ringkasan Operasional</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="text-xs text-slate-500">Total Enrollment</div>
+              <div className="text-xl font-semibold text-slate-900">
+                {mockSummary.totalEnrollments}
               </div>
-              {decisions.length === 0 ? (
-                <EmptyState
-                  title="Belum ada keputusan"
-                  description="Keputusan kelulusan akan tampil setelah ditetapkan."
-                />
-              ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left' }}>
-                      <th>Peserta</th>
-                      <th>Keputusan</th>
-                      <th>Waktu</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {decisions.slice(0, 8).map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.displayName ?? item.participantName}</td>
-                        <td>{item.decision}</td>
-                        <td>{new Date(item.decidedAt).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
             </div>
-          </>
-        ) : null}
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="text-xs text-slate-500">Total Peserta</div>
+              <div className="text-xl font-semibold text-slate-900">
+                {mockSummary.totalParticipants}
+              </div>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="text-xs text-slate-500">Pelatih Terlibat</div>
+              <div className="text-xl font-semibold text-slate-900">
+                {mockSummary.totalTrainers}
+              </div>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="text-xs text-slate-500">Observer Terlibat</div>
+              <div className="text-xl font-semibold text-slate-900">
+                {mockSummary.totalObservers}
+              </div>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="text-xs text-slate-500">Cakupan Penilaian</div>
+              <div className="text-xl font-semibold text-slate-900">{assessmentRate}</div>
+              <div className="text-xs text-slate-500">
+                {mockSummary.totalAssessedParticipants} peserta dinilai
+              </div>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="text-xs text-slate-500">Pengumpulan Evaluasi</div>
+              <div className="text-xl font-semibold text-slate-900">{evaluationRate}</div>
+              <div className="text-xs text-slate-500">
+                {mockSummary.totalEvaluationsSubmitted} evaluasi masuk
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-lg font-semibold text-slate-900">Daftar Peserta</h2>
+            <p className="text-sm text-slate-600">Snapshot peserta terbaru.</p>
+          </div>
+          <div className="text-sm text-slate-600">
+            Review: Pending {reviewStats.pending} · Disetujui {reviewStats.approved} · Ditolak{' '}
+            {reviewStats.rejected}
+          </div>
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                <tr>
+                  <th className="px-4 py-3">Peserta</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Review</th>
+                  <th className="px-4 py-3">Terdaftar</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {participants.map((item) => (
+                  <tr key={item.enrollmentId} className="text-slate-700">
+                    <td className="px-4 py-3 font-medium text-slate-900">
+                      {item.displayName ?? item.participantName}
+                    </td>
+                    <td className="px-4 py-3">{item.status}</td>
+                    <td className="px-4 py-3">{item.reviewStatus}</td>
+                    <td className="px-4 py-3">{item.registeredAt}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="text-xs text-slate-500">
+            Review enrollment digunakan sebagai kontrol administrasi, bukan keputusan kelulusan.
+          </div>
+        </div>
+
+        <div className="grid gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-lg font-semibold text-slate-900">Keputusan Kelulusan</h2>
+            <p className="text-sm text-slate-600">
+              Keputusan diambil melalui rapat panitia, bukan auto-grading.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
+              <div className="text-xs text-slate-500">Lulus</div>
+              <div className="text-lg font-semibold text-slate-900">
+                {decisionStats.lulus}
+              </div>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
+              <div className="text-xs text-slate-500">Tidak Lulus</div>
+              <div className="text-lg font-semibold text-slate-900">
+                {decisionStats.tidakLulus}
+              </div>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
+              <div className="text-xs text-slate-500">Ditunda</div>
+              <div className="text-lg font-semibold text-slate-900">
+                {decisionStats.ditunda}
+              </div>
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                <tr>
+                  <th className="px-4 py-3">Peserta</th>
+                  <th className="px-4 py-3">Keputusan</th>
+                  <th className="px-4 py-3">Waktu</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {decisions.map((item) => (
+                  <tr key={item.id} className="text-slate-700">
+                    <td className="px-4 py-3 font-medium text-slate-900">
+                      {item.participantName}
+                    </td>
+                    <td className="px-4 py-3">{item.decision}</td>
+                    <td className="px-4 py-3">{item.decidedAt}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+          Evaluasi (KAP) bersifat self-assessment dan tidak mempengaruhi kelulusan.
+        </div>
       </div>
-    </RequireEventRole>
+    </div>
   );
 }
