@@ -2,43 +2,37 @@
 
 import MessageBanner from '@/components/MessageBanner';
 
-type StatusBannerProps = {
-  status:
-    | 'draft'
-    | 'published'
-    | 'ongoing'
-    | 'completed'
-    | 'cancelled'
-    | string;
-};
+interface StatusBannerProps {
+  status: 'draft' | 'published' | 'ongoing' | 'completed' | 'cancelled';
+  className?: string;
+}
 
-export default function StatusBanner({ status }: StatusBannerProps) {
+export default function StatusBanner({ status, className }: StatusBannerProps) {
   if (status === 'ongoing') {
     return null;
   }
 
   if (status === 'draft' || status === 'published') {
     return (
-      <MessageBanner
-        variant="info"
-        message="Event belum berjalan, aksi tulis belum tersedia"
-      />
+      <div className={className}>
+        <MessageBanner
+          variant="info"
+          message="Event belum berjalan, aksi tulis belum tersedia"
+        />
+      </div>
     );
   }
 
   if (status === 'completed' || status === 'cancelled') {
     return (
-      <MessageBanner
-        variant="info"
-        message="Event sudah selesai, semua read-only"
-      />
+      <div className={className}>
+        <MessageBanner
+          variant="info"
+          message="Event sudah selesai, semua read-only"
+        />
+      </div>
     );
   }
 
-  return (
-    <MessageBanner
-      variant="info"
-      message={`Status event: ${status}`}
-    />
-  );
+  return <div className={className} />;
 }
