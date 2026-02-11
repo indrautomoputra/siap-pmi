@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../../infrastructure/auth/auth.module';
 import { SupabaseModule } from '../../infrastructure/supabase/supabase.module';
+import { EventContextModule } from '../../core/event-context/event-context.module';
 import { EventRolesModule } from '../event-roles/event-roles.module';
 import { EventsModule } from '../events/events.module';
 import { EnrollmentsRepository } from '../enrollments/enrollments.repository';
@@ -17,6 +18,7 @@ import { GraduationService } from './graduations.service';
     EventRolesModule,
     AuthModule,
     AuditModule,
+    EventContextModule,
   ],
   controllers: [GraduationsController],
   providers: [

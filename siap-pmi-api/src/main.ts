@@ -25,6 +25,7 @@ function validateEnv(): void {
 }
 
 async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
   validateEnv();
   if (process.env.SENTRY_DSN) {
     Sentry.init({
@@ -33,7 +34,6 @@ async function bootstrap() {
       tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? '0.1'),
     });
   }
-  const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: (process.env.ADMIN_ORIGIN ?? '')
       .split(',')

@@ -5,6 +5,6 @@ import { EventContextGuard } from './event-context.guard';
 @Module({
   imports: [AuthContextModule],
   providers: [EventContextGuard],
-  exports: [EventContextGuard],
+  exports: [EventContextGuard, AuthContextModule],
 })
 export class EventContextModule {}
