@@ -11,10 +11,11 @@ interface PageProps {
 
 export default function PanitiaDashboardPage({ params }: PageProps) {
   const mockEvent = {
-    id: params.eventId,
-    name: 'Pelatihan KSR Dasar Batch 5',
-    status: 'ongoing' as const,
-  };
+  id: params.eventId,
+  name: 'Pelatihan KSR Dasar Batch 5',
+  status: 'ongoing' as const, // ← PASTIKAN INI
+};
+
 
   const mockSummary = {
     totalEnrollments: 160,
